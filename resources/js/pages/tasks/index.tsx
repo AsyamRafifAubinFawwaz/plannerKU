@@ -123,7 +123,11 @@ export default function TasksIndex({ tasks }: Props) {
                                         </p>
                                         {task.due_date && (
                                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                                {task.due_date}
+                                                {new Date(task.due_date).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric'
+                                                })}
                                             </p>
                                         )}
                                     </div>

@@ -44,20 +44,20 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Task::class);
     }
 
-    // public function habits()
-    // {
-    //     return $this->hasMany(Habit::class);
-    // }
+    public function habits()
+    {
+        return $this->hasMany(Habit::class);
+    }
 
-    // public function habitLogs()
-    // {
-    //     return $this->hasMany(HabitLog::class);
-    // }
+    public function habitLogs()
+    {
+        return $this->hasMany(HabitLog::class);
+    }
 
-    // public function events()
-    // {
-    //     return $this->hasMany(Event::class);
-    // }
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 
     // public function subscriptions()
     // {
