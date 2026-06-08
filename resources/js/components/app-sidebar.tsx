@@ -27,6 +27,11 @@ const mainNavItems: NavItem[] = [
         href: '/tasks',
         icon: CheckSquare,
     },
+    {
+        title: 'Habit',
+        href: '/habits',
+        icon: CheckSquare,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

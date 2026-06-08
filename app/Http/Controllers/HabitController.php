@@ -13,8 +13,11 @@ class HabitController extends Controller
 {
     public function index(): Response
     {
-        $habits = auth()->user()->habits()->get();
-        return Inertia::render('habits/index', [
+        $habits = auth()->user()->habits()
+            ->with(['logs' => fn($q) => $q->orderBy('logged_date', 'desc')->limit(7)])
+            ->get();
+
+        return Inertia::render('habit/index', [
             'habits' => $habits
         ]);
     }
