@@ -2,9 +2,9 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { TaskDetailSheet } from '@/components/task/task-detail-sheet';
 import { TaskFormModal } from '@/components/task/task-form-modal';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { Eye, Pencil, Trash2Icon } from 'lucide-react';
+import { Camera, Check, Eye, Pencil, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -23,14 +23,13 @@ interface Props {
     tasks: Task[];
 }
 
-const categoryBadge: Record<
-    string,
-    { bg: string; text: string; label: string }
-> = {
-    kuliah: { bg: '#1E1A3A', text: '#A89BE8', label: 'Kuliah' },
-    harian: { bg: '#1E1E1E', text: '#888888', label: 'Harian' },
-    penting: { bg: '#FF6B1A1A', text: '#FF6B1A', label: 'Penting' },
+const categoryBadge: Record<string, { bg: string; text: string; label: string }> = {
+    kuliah: { bg: '#1E1A3A', text: '#A89BE8', label: 'kuliah' },
+    harian: { bg: '#1E1E1E', text: '#888888', label: 'harian' },
+    penting: { bg: '#FF6B1A1A', text: '#FF6B1A', label: 'penting' },
 };
+
+const FILTERS = ['Semua', 'Kuliah', 'Harian', 'Penting'];
 
 export default function TasksIndex({ tasks }: Props) {
     const [formOpen, setFormOpen] = useState(false);
@@ -38,6 +37,7 @@ export default function TasksIndex({ tasks }: Props) {
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [taskDetail, setTaskDetail] = useState<Task | null>(null);
+    const [activeFilter, setActiveFilter] = useState('Semua');
 
     function openCreate() {
         setTaskToEdit(null);
@@ -66,110 +66,127 @@ export default function TasksIndex({ tasks }: Props) {
                 toast.success('Tugas berhasil dihapus.');
                 setTaskToDelete(null);
             },
-            onError: () => {
-                toast.error('Gagal menghapus tugas.');
-            },
+            onError: () => toast.error('Gagal menghapus tugas.'),
             onFinish: () => setDeleting(false),
         });
     }
 
-    const pendingTasks = tasks.filter((t) => !t.is_done);
-    const doneTasks = tasks.filter((t) => t.is_done);
+    const filteredTasks = tasks.filter(t => {
+        if (activeFilter === 'Semua') return true;
+        return t.category.toLowerCase() === activeFilter.toLowerCase();
+    });
 
     return (
         <>
             <Head title="Tugas" />
 
-            <div className="p-5">
-                <div className="mb-4 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-xl font-medium text-foreground">
-                            Tugas
-                        </h1>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                            {pendingTasks.length} aktif · {doneTasks.length}{' '}
-                            selesai
-                        </p>
-                    </div>
-                    <Button onClick={openCreate}>+ Tambah Tugas</Button>
+            <div className="p-8 max-w-5xl mx-auto">
+                {/* Header Utama */}
+                <div className="flex items-center justify-between mb-6">
+                    <h1 className="text-2xl font-medium text-foreground">Tugas</h1>
+                    <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg" onClick={openCreate}>
+                        + Tambah tugas
+                    </Button>
                 </div>
 
-                <div className="space-y-2">
-                    {tasks.length === 0 ? (
-                        <p className="py-10 text-center text-sm text-muted-foreground">
-                            Belum ada tugas. Tambahkan tugas pertamamu!
+                {/* Filter Chips */}
+                <div className="flex items-center gap-2 mb-8">
+                    {FILTERS.map((filter) => (
+                        <button
+                            key={filter}
+                            onClick={() => setActiveFilter(filter)}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+                                activeFilter === filter 
+                                    ? 'bg-[#FF6B1A] text-white' 
+                                    : 'bg-[#1A1A1A] text-muted-foreground hover:bg-[#2A2A2A] hover:text-foreground'
+                            }`}
+                        >
+                            {filter}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Task List */}
+                <div className="space-y-2.5">
+                    {filteredTasks.length === 0 ? (
+                        <p className="py-12 text-center text-sm text-muted-foreground bg-[#1A1A1A] rounded-xl">
+                            Belum ada tugas di kategori ini.
                         </p>
                     ) : (
-                        tasks.map((task) => {
+                        filteredTasks.map((task) => {
                             const badge = categoryBadge[task.category];
+                            const hasPhoto = task.attachments && task.attachments.length > 0;
+
                             return (
                                 <div
                                     key={task.id}
-                                    className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-accent"
+                                    className="group flex items-center justify-between rounded-xl bg-[#1A1A1A] px-4 py-3.5 transition-colors hover:bg-[#222]"
                                 >
-                                    <Checkbox
-                                        checked={task.is_done}
-                                        onCheckedChange={() => toggleDone(task)}
-                                        className="flex-shrink-0"
-                                    />
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        {/* Custom Checkbox */}
+                                        <button 
+                                            onClick={() => toggleDone(task)}
+                                            className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-[4px] border cursor-pointer transition-colors ${
+                                                task.is_done 
+                                                    ? 'bg-[#FF6B1A] border-[#FF6B1A] text-white' 
+                                                    : 'border-muted-foreground/30 bg-transparent hover:border-[#FF6B1A]'
+                                            }`}
+                                        >
+                                            {task.is_done && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                                        </button>
 
-                                    <div
-                                        className="min-w-0 flex-1 cursor-pointer"
-                                    >
+                                        {/* Judul Tugas */}
                                         <p
-                                            className={`text-sm ${task.is_done ? 'text-muted-foreground line-through' : 'text-foreground'}`}
+                                            className={`text-[14px] truncate ${
+                                                task.is_done ? 'text-muted-foreground line-through' : 'text-foreground font-medium'
+                                            }`}
                                         >
                                             {task.title}
                                         </p>
-                                        {task.due_date && (
-                                            <p className="mt-0.5 text-xs text-muted-foreground">
-                                                {new Date(task.due_date).toLocaleDateString('id-ID', {
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric'
-                                                })}
-                                            </p>
-                                        )}
                                     </div>
 
-                                    <span
-                                        className="flex-shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                                        style={{
-                                            background: badge.bg,
-                                            color: badge.text,
-                                        }}
-                                    >
-                                        {badge.label}
-                                    </span>
+                                    {/* Kolom Kanan (Badge, Photo, Actions) */}
+                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                        <span
+                                            className="rounded-full px-3 py-1 text-[11px] font-medium"
+                                            style={{
+                                                background: badge.bg,
+                                                color: badge.text,
+                                            }}
+                                        >
+                                            {badge.label}
+                                        </span>
 
-                                    <div className="flex flex-shrink-0 gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setTaskDetail(task)}
-                                            className="cursor-pointer"
-                                            title="Lihat Detail"
-                                        >
-                                            <Eye className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => openEdit(task)}
-                                            className="cursor-pointer"
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="cursor-pointer text-destructive hover:text-destructive"
-                                            onClick={() =>
-                                                setTaskToDelete(task)
-                                            }
-                                        >
-                                            <Trash2Icon className="h-4 w-4" />
-                                        </Button>
+                                        {hasPhoto && (
+                                            <div className="flex h-7 w-9 items-center justify-center rounded-md border border-border bg-[#1E1E1E]">
+                                                <Camera className="h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                        )}
+
+                                        {/* Actions (visible on hover) */}
+                                        <div className="hidden group-hover:flex items-center gap-1 ml-2">
+                                            <button
+                                                className="p-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                                                onClick={() => setTaskDetail(task)}
+                                                title="Detail"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                className="p-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                                                onClick={() => openEdit(task)}
+                                                title="Edit"
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                className="p-1 cursor-pointer text-muted-foreground hover:text-destructive"
+                                                onClick={() => setTaskToDelete(task)}
+                                                title="Hapus"
+                                            >
+                                                <Trash2Icon className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             );

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Response;
 
 class EventController extends Controller
@@ -13,7 +14,7 @@ class EventController extends Controller
     public function index(): Response
     {
         $events = auth()->user()->events()->orderBy('start_date', 'desc')->get();
-        return inertia('events/index', [
+        return Inertia::render('calendar/index', [
             'events' => $events
         ]);
     }

@@ -35,61 +35,51 @@ export function HabitRow({ habit, onEdit, onDelete }: Props) {
     }
 
     return (
-        <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 transition-colors hover:bg-accent">
-            {/* Icon + Nama */}
-            <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">
-                    {habit.icon && <span className="mr-2">{habit.icon}</span>}
-                    {habit.name}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                    Target: {habit.target_per_week}x/minggu
+        <div className="flex items-center justify-between rounded-xl bg-[#1A1A1A] px-4 py-4 transition-colors hover:bg-[#222]">
+            {/* Nama + Icon */}
+            <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium text-foreground">
+                    {habit.name} {habit.icon && <span>{habit.icon}</span>}
                 </p>
             </div>
 
-            {/* Dot Tracker 7 hari */}
-            <div className="flex gap-1.5">
-                {last7Days.map((date) => (
+            <div className="flex items-center gap-6">
+                {/* Dot Tracker 7 hari */}
+                <div className="flex gap-1.5">
+                    {last7Days.map((date) => (
+                        <div key={date} className="w-8 flex justify-center">
+                            <button
+                                onClick={() => toggle(date)}
+                                className="transition-transform hover:scale-110 flex-shrink-0"
+                                style={{
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: '50%',
+                                    background: isDone(date) ? '#FF6B1A' : '#2A2A2A',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Tombol Edit & Hapus */}
+                <div className="flex items-center justify-end gap-1 opacity-50 transition-opacity hover:opacity-100 w-14">
                     <button
-                        key={date}
-                        onClick={() => toggle(date)}
-                        style={{
-                            width: 10,
-                            height: 10,
-                            borderRadius: '50%',
-                            background: isDone(date) ? '#FF6B1A' : '#2a2a2a',
-                            border: isDone(date) ? 'none' : '1px solid #3a3a3a',
-                            cursor: 'pointer',
-                        }}
-                    />
-                ))}
-            </div>
-
-            {/* Streak */}
-            <span className="flex-shrink-0 text-xs font-medium text-primary">
-                🔥 {habit.current_streak}
-            </span>
-
-            {/* Tombol Edit & Hapus */}
-            <div className="flex flex-shrink-0 gap-1">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="cursor-pointer"
-                    onClick={() => onEdit(habit)}
-                    title="Edit"
-                >
-                    <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="cursor-pointer text-destructive hover:text-destructive"
-                    onClick={() => onDelete(habit)}
-                    title="Hapus"
-                >
-                    <Trash2Icon className="h-4 w-4" />
-                </Button>
+                        className="p-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                        onClick={() => onEdit(habit)}
+                        title="Edit"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                        className="p-1 cursor-pointer text-muted-foreground hover:text-destructive"
+                        onClick={() => onDelete(habit)}
+                        title="Hapus"
+                    >
+                        <Trash2Icon className="h-4 w-4" />
+                    </button>
+                </div>
             </div>
         </div>
     );
