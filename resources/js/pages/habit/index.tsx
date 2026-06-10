@@ -56,7 +56,7 @@ export default function HabitIndex({ habits }: Props) {
         <>
             <Head title="Habit Tracker" />
 
-            <div className="p-8 max-w-4xl mx-auto">
+            <div className="p-8 w-full max-w-4xl mx-auto">
                 {/* Header Utama */}
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-2xl font-medium text-foreground">Habit Tracker</h1>

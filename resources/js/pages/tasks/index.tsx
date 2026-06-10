@@ -4,7 +4,8 @@ import { TaskFormModal } from '@/components/task/task-form-modal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
-import { Camera, Check, Eye, Pencil, Trash2Icon } from 'lucide-react';
+import { FiCamera, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -80,7 +81,7 @@ export default function TasksIndex({ tasks }: Props) {
         <>
             <Head title="Tugas" />
 
-            <div className="p-8 max-w-5xl mx-auto">
+            <div className="p-8 w-full max-w-5xl mx-auto">
                 {/* Header Utama */}
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-2xl font-medium text-foreground">Tugas</h1>
@@ -92,17 +93,18 @@ export default function TasksIndex({ tasks }: Props) {
                 {/* Filter Chips */}
                 <div className="flex items-center gap-2 mb-8">
                     {FILTERS.map((filter) => (
-                        <button
+                        <Button
                             key={filter}
+                            variant="ghost"
                             onClick={() => setActiveFilter(filter)}
-                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+                            className={`rounded-full px-4 py-1.5 h-auto text-sm font-medium transition-colors cursor-pointer ${
                                 activeFilter === filter 
-                                    ? 'bg-[#FF6B1A] text-white' 
+                                    ? 'bg-[#FF6B1A] text-white hover:bg-[#FF8C42] hover:text-white' 
                                     : 'bg-[#1A1A1A] text-muted-foreground hover:bg-[#2A2A2A] hover:text-foreground'
                             }`}
                         >
                             {filter}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
@@ -120,25 +122,27 @@ export default function TasksIndex({ tasks }: Props) {
                             return (
                                 <div
                                     key={task.id}
-                                    className="group flex items-center justify-between rounded-xl bg-[#1A1A1A] px-4 py-3.5 transition-colors hover:bg-[#222]"
+                                    className={`group flex items-center justify-between rounded-2xl bg-[#141414] border-2 px-5 py-4 transition-all active:translate-y-[2px] active:border-b-2 ${
+                                        task.is_done 
+                                            ? 'border-[#FF6B1A]/30 border-b-[#FF6B1A]/20 bg-[#FF6B1A]/5 opacity-80' 
+                                            : 'border-[#2A2A2A] border-b-4 hover:border-[#444]'
+                                    }`}
                                 >
-                                    <div className="flex items-center gap-3 min-w-0">
-                                        {/* Custom Checkbox */}
-                                        <button 
-                                            onClick={() => toggleDone(task)}
-                                            className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-[4px] border cursor-pointer transition-colors ${
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <Checkbox 
+                                            checked={task.is_done}
+                                            onCheckedChange={() => toggleDone(task)}
+                                            className={`w-6 h-6 rounded-full border-2 transition-colors flex-shrink-0 ${
                                                 task.is_done 
-                                                    ? 'bg-[#FF6B1A] border-[#FF6B1A] text-white' 
-                                                    : 'border-muted-foreground/30 bg-transparent hover:border-[#FF6B1A]'
+                                                    ? 'bg-[#FF6B1A] border-[#FF6B1A] text-white data-[state=checked]:bg-[#FF6B1A] data-[state=checked]:border-[#FF6B1A]' 
+                                                    : 'border-muted-foreground/40 hover:border-[#FF6B1A]'
                                             }`}
-                                        >
-                                            {task.is_done && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
-                                        </button>
+                                        />
 
                                         {/* Judul Tugas */}
                                         <p
-                                            className={`text-[14px] truncate ${
-                                                task.is_done ? 'text-muted-foreground line-through' : 'text-foreground font-medium'
+                                            className={`text-[15px] truncate font-bold ${
+                                                task.is_done ? 'text-muted-foreground line-through' : 'text-foreground'
                                             }`}
                                         >
                                             {task.title}
@@ -146,46 +150,53 @@ export default function TasksIndex({ tasks }: Props) {
                                     </div>
 
                                     {/* Kolom Kanan (Badge, Photo, Actions) */}
-                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                    <div className="flex items-center gap-4 flex-shrink-0">
+                                        {/* Badge Kategori */}
                                         <span
-                                            className="rounded-full px-3 py-1 text-[11px] font-medium"
+                                            className="rounded-full px-3 py-1.5 text-[11px] font-bold"
                                             style={{
                                                 background: badge.bg,
                                                 color: badge.text,
                                             }}
                                         >
-                                            {badge.label}
+                                            {badge.label.toUpperCase()}
                                         </span>
 
                                         {hasPhoto && (
-                                            <div className="flex h-7 w-9 items-center justify-center rounded-md border border-border bg-[#1E1E1E]">
-                                                <Camera className="h-4 w-4 text-muted-foreground" />
+                                            <div className="flex h-8 w-10 items-center justify-center rounded-lg border-2 border-[#2A2A2A] bg-[#1E1E1E]">
+                                                <FiCamera className="h-4 w-4 text-muted-foreground" />
                                             </div>
                                         )}
 
-                                        {/* Actions (visible on hover) */}
-                                        <div className="hidden group-hover:flex items-center gap-1 ml-2">
-                                            <button
-                                                className="p-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                                        {/* Actions (Sekarang selalu muncul!) */}
+                                        <div className="flex items-center gap-1.5 border-l-2 border-[#2A2A2A] pl-4 ml-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-[#2A2A2A] rounded-lg transition-transform hover:scale-110 active:scale-95"
                                                 onClick={() => setTaskDetail(task)}
                                                 title="Detail"
                                             >
-                                                <Eye className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                className="p-1 cursor-pointer text-muted-foreground hover:text-foreground"
+                                                <FiEye className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-[#2A2A2A] rounded-lg transition-transform hover:scale-110 active:scale-95"
                                                 onClick={() => openEdit(task)}
                                                 title="Edit"
                                             >
-                                                <Pencil className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                className="p-1 cursor-pointer text-muted-foreground hover:text-destructive"
+                                                <FiEdit2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-transform hover:scale-110 active:scale-95"
                                                 onClick={() => setTaskToDelete(task)}
                                                 title="Hapus"
                                             >
-                                                <Trash2Icon className="h-4 w-4" />
-                                            </button>
+                                                <FiTrash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>

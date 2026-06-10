@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Calendar, CheckSquare, FolderGit2, LayoutGrid } from 'lucide-react';
+import { FiGrid, FiTarget, FiCalendar, FiBookOpen, FiGithub } from 'react-icons/fi';
+import { FaFire } from 'react-icons/fa6';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -20,36 +21,36 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: FiGrid,
     },
     {
         title: 'Tugas',
         href: '/tasks',
-        icon: CheckSquare,
+        icon: FiTarget,
     },
     {
         title: 'Habit',
         href: '/habits',
-        icon: CheckSquare,
+        icon: FaFire,
     },
     {
         title: 'Kalender',
         href: '/events',
-        icon: Calendar,
+        icon: FiCalendar,
     },
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Repository',
+    //     href: 'https://github.com/laravel/react-starter-kit',
+    //     icon: FiGithub,
+    // },
+    // {
+    //     title: 'Documentation',
+    //     href: 'https://laravel.com/docs/starter-kits#react',
+    //     icon: FiBookOpen,
+    // },
 ];
 
 export function AppSidebar() {

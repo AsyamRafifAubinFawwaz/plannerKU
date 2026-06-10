@@ -2,7 +2,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EventFormModal } from '@/components/event/event-form-modal';
 import { Button } from '@/components/ui/button';
 import { Head, router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Pencil, Trash2Icon } from 'lucide-react';
+import { FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -107,24 +107,21 @@ export default function CalendarIndex({ events }: Props) {
                     </Button>
                 </div>
 
-                {/* Subheader Bulan & Tahun */}
                 <div className="flex items-center gap-4 mb-4">
-                    <h2 className="text-[17px] font-medium text-foreground">
-                        {MONTHS[month]} {year}
-                    </h2>
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-[#1E1E1E]" onClick={prevMonth}>
-                            <ChevronLeft className="h-4 w-4" />
+                        <Button variant="outline" size="icon" onClick={prevMonth} className="h-9 w-9 bg-transparent border-[#2A2A2A] text-foreground hover:bg-[#2A2A2A] cursor-pointer">
+                            <FiChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-[#1E1E1E]" onClick={nextMonth}>
-                            <ChevronRight className="h-4 w-4" />
+                        <h2 className="text-xl font-medium text-foreground min-w-[140px] text-center">
+                            {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+                        </h2>
+                        <Button variant="outline" size="icon" onClick={nextMonth} className="h-9 w-9 bg-transparent border-[#2A2A2A] text-foreground hover:bg-[#2A2A2A] cursor-pointer">
+                            <FiChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
 
-                {/* Kalender Grid */}
                 <div className="w-full">
-                    {/* Header Hari */}
                     <div className="grid grid-cols-7 gap-3 mb-2">
                         {DAYS.map((d) => (
                             <div key={d} className="text-[13px] text-muted-foreground font-medium pl-3">
@@ -133,8 +130,6 @@ export default function CalendarIndex({ events }: Props) {
                         ))}
                     </div>
 
-                    {/* Kotak Tanggal */}
-                    {/* Gap diatur menjadi 3, dan col-span proporsional */}
                     <div className="grid grid-cols-7 gap-3">
                         {calendarDays.map((day, idx) => {
                             const dayEvents = day ? getEventsForDay(day) : [];
@@ -143,33 +138,58 @@ export default function CalendarIndex({ events }: Props) {
                             return (
                                 <div
                                     key={idx}
-                                    className={`min-h-[100px] md:min-h-[120px] rounded-xl p-3 border transition-colors flex flex-col ${
+                                    className={`relative min-h-[100px] md:min-h-[120px] rounded-2xl p-3 border-2 transition-transform hover:-translate-y-[2px] active:translate-y-0 flex flex-col group overflow-hidden ${
                                         !day 
                                             ? 'bg-transparent border-transparent' 
                                             : currentDay 
-                                                ? 'bg-[#FF6B1A] border-[#FF6B1A]' 
-                                                : 'bg-[#141414] border-[#2A2A2A] hover:border-[#444]'
+                                                ? 'bg-[#1A1A1A] border-[#FF6B1A]/50 border-b-4 hover:border-[#FF6B1A]' 
+                                                : 'bg-[#1A1A1A] border-[#2A2A2A] border-b-4 hover:border-[#444]'
                                     }`}
                                 >
                                     {day && (
-                                        <>
-                                            {/* Angka Tanggal */}
-                                            <span className={`text-[15px] ${currentDay ? 'text-white font-medium' : 'text-foreground'}`}>
-                                                {day}
-                                            </span>
+                                        <div className="flex flex-col h-full relative">
+                                            
+                                            {/* Baris Atas: Tanggal (kiri) & Titik Warna (kanan) */}
+                                            <div className="flex justify-between items-start mb-2.5">
+                                                <span className={`text-[16px] font-black leading-none ${currentDay ? 'text-[#FF6B1A]' : 'text-muted-foreground'}`}>
+                                                    {day}
+                                                </span>
 
-                                            {/* Dot event */}
-                                            <div className="mt-auto flex flex-wrap gap-1.5">
-                                                {dayEvents.map((event) => (
-                                                    <div
+                                                {dayEvents.length > 0 && (
+                                                    <div className="flex gap-1 flex-wrap justify-end max-w-[50%]">
+                                                        {dayEvents.map(event => (
+                                                            <div 
+                                                                key={event.id}
+                                                                className="w-2.5 h-2.5 rounded-full"
+                                                                style={{ backgroundColor: event.color ?? '#FF6B1A' }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Daftar Event di bawah tanggal */}
+                                            <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                                                {dayEvents.map(event => (
+                                                    <div 
                                                         key={event.id}
-                                                        className="h-2 w-2 rounded-full"
-                                                        style={{ backgroundColor: currentDay ? '#fff' : (event.color ?? '#FF6B1A') }}
-                                                        title={event.title}
-                                                    />
+                                                        className="flex flex-col cursor-pointer transition-opacity hover:opacity-80 relative pl-2 border-l-[3px]"
+                                                        style={{ borderColor: event.color ?? '#FF6B1A' }}
+                                                        onClick={(e) => { e.stopPropagation(); setEventToEdit(event); setFormOpen(true); }}
+                                                    >
+                                                        <span className="text-[13px] font-bold text-white truncate leading-tight">
+                                                            {event.title}
+                                                        </span>
+                                                        {event.notes && (
+                                                            <span className="text-[11px] font-medium text-muted-foreground truncate leading-tight mt-0.5">
+                                                                {event.notes}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
-                                        </>
+
+                                        </div>
                                     )}
                                 </div>
                             );
@@ -177,7 +197,6 @@ export default function CalendarIndex({ events }: Props) {
                     </div>
                 </div>
 
-                {/* Event Mendatang List */}
                 <div className="pt-8">
                     <h3 className="text-[15px] font-medium text-muted-foreground mb-4">Event mendatang</h3>
                     <div className="space-y-3">
@@ -200,12 +219,12 @@ export default function CalendarIndex({ events }: Props) {
                                         </span>
                                         
                                         <div className="hidden group-hover:flex items-center gap-1">
-                                            <button className="p-1 text-muted-foreground hover:text-foreground cursor-pointer" onClick={() => { setEventToEdit(event); setFormOpen(true); }}>
-                                                <Pencil className="h-3.5 w-3.5" />
-                                            </button>
-                                            <button className="p-1 text-muted-foreground hover:text-destructive cursor-pointer" onClick={() => setEventToDelete(event)}>
-                                                <Trash2Icon className="h-3.5 w-3.5" />
-                                            </button>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-muted-foreground hover:text-foreground cursor-pointer" onClick={() => { setEventToEdit(event); setFormOpen(true); }}>
+                                                <FiEdit2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer" onClick={() => setEventToDelete(event)}>
+                                                <FiTrash2 className="h-3.5 w-3.5" />
+                                            </Button>
                                         </div>
                                     </div>
                                 </div>
