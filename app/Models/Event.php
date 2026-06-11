@@ -11,10 +11,28 @@ class Event extends Model
         'start_date',
         'end_date',
         'color',
-        'notes'
+        'notes',
+        'is_done'
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
+    }
+
+    public function casts(): array{
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'is_done' => 'boolean'
+        ];
+    }
+
+    public function scopeMultiDay($query){
+        return $query->whereNotNull('end_date');
+    }
+
+    public function scopeSingleDay($query){
+        return $query->whereNull('end_date');
     }
 }

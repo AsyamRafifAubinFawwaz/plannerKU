@@ -23,4 +23,11 @@ class Habit extends Model
     public function logs(){
         return $this->hasMany(HabitLog::class);
     }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

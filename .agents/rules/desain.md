@@ -4,293 +4,313 @@ trigger: always_on
 
 # Design System — PlannerKu
 
-## Tema yang Disepakati
+## Status: ✅ Selesai & Matang
 
-**Opsi A — Dark Pure**
-Hitam pekat sebagai base, oranye terang sebagai warna utama.
-Karakter: tegas, modern, developer-friendly.
+Seluruh UI/UX frontend MVP sudah selesai dan selaras.
+Dokumen ini adalah source of truth untuk konsistensi desain
+saat mengerjakan komponen baru atau fitur tambahan.
 
 ---
 
-## Color Tokens
+## Tema: Gamified 3D Dark Mode
 
-Definisikan semua warna sebagai CSS variable di `resources/css/app.css`.
-**Jangan pernah hardcode hex langsung di template Vue.**
+Terinspirasi dari Duolingo — interaktif, satisfying, namun tetap elegan.
+
+```
+Background utama : #141414  (bukan #0A0A0A lagi — lebih warm)
+Surface/card     : #1E1E1E
+Border           : #2A2A2A
+Primary (oranye) : #FF6B1A
+Primary light    : #FF8C42
+Teks utama       : #FFFFFF
+Teks muted       : #888888
+```
+
+---
+
+## Color Tokens (CSS Variables)
 
 ```css
 /* resources/css/app.css */
 :root {
-  /* Background layers */
-  --color-bg:            #0A0A0A;   /* halaman utama */
-  --color-surface:       #141414;   /* topbar, sidebar, card */
-  --color-card:          #1E1E1E;   /* card dalam card, input */
-  --color-border:        #2A2A2A;   /* semua garis pemisah */
-
-  /* Brand */
-  --color-primary:       #FF6B1A;   /* tombol utama, aksen aktif */
-  --color-primary-light: #FF8C42;   /* hover state primary */
-  --color-primary-dim:   #FF6B1A1A; /* background badge/tag primary */
-
-  /* Text */
-  --color-text:          #FFFFFF;   /* teks utama */
-  --color-text-muted:    #888888;   /* label, placeholder, sekunder */
-  --color-text-faint:    #444444;   /* disabled, sangat redup */
-
-  /* Semantic */
-  --color-success:       #1D9E75;   /* selesai, streak aktif, pro badge */
-  --color-danger:        #E24B4A;   /* deadline lewat, hapus */
-  --color-warning:       #EF9F27;   /* mendekati deadline */
-  --color-info:          #378ADD;   /* informasi netral */
+  --color-bg:             #141414;
+  --color-surface:        #1E1E1E;
+  --color-card:           #252525;
+  --color-border:         #2A2A2A;
+  --color-primary:        #FF6B1A;
+  --color-primary-light:  #FF8C42;
+  --color-primary-dim:    rgba(255, 107, 26, 0.12);
+  --color-text:           #FFFFFF;
+  --color-text-muted:     #888888;
+  --color-text-faint:     #444444;
+  --color-success:        #1D9E75;
+  --color-danger:         #E24B4A;
+  --color-warning:        #EF9F27;
+  --color-info:           #378ADD;
 }
 ```
 
-### Tailwind custom token — `tailwind.config.js`
+### Tailwind config
 
 ```js
 theme: {
   extend: {
     colors: {
-      bg:      'var(--color-bg)',
-      surface: 'var(--color-surface)',
-      card:    'var(--color-card)',
-      border:  'var(--color-border)',
-      primary: {
-        DEFAULT: 'var(--color-primary)',
-        light:   'var(--color-primary-light)',
-        dim:     'var(--color-primary-dim)',
-      },
-      text: {
-        DEFAULT: 'var(--color-text)',
-        muted:   'var(--color-text-muted)',
-        faint:   'var(--color-text-faint)',
-      },
-      success: 'var(--color-success)',
-      danger:  'var(--color-danger)',
-      warning: 'var(--color-warning)',
-      info:    'var(--color-info)',
+      bg:      '#141414',
+      surface: '#1E1E1E',
+      card:    '#252525',
+      border:  '#2A2A2A',
+      primary: { DEFAULT: '#FF6B1A', light: '#FF8C42', dim: 'rgba(255,107,26,0.12)' },
+      text:    { DEFAULT: '#FFFFFF', muted: '#888888', faint: '#444444' },
+      success: '#1D9E75',
+      danger:  '#E24B4A',
+      warning: '#EF9F27',
+      info:    '#378ADD',
     },
-    borderWidth: {
-      DEFAULT: '0.5px',  // semua border di app ini 0.5px
-    },
+    borderWidth: { DEFAULT: '0.5px' },
   },
 },
 ```
 
-Contoh pemakaian di Vue:
+---
 
-```html
-<div class="bg-surface border border-border rounded-xl p-4">
-  <button class="bg-primary hover:bg-primary-light text-white px-4 py-2 rounded-lg">
-    Simpan
+## Sistem Ikon
+
+**Library: `react-icons`** — bukan lucide-react.
+
+Semua ikon sudah dimigrasi ke keluarga `Fi` (Feather) dan `Fa6` (Font Awesome 6).
+
+| Halaman / Elemen | Ikon | Import |
+|---|---|---|
+| Dashboard | `FiGrid` | `react-icons/fi` |
+| Tugas | `FiTarget` | `react-icons/fi` |
+| Habit | `FaFire` | `react-icons/fa6` |
+| Kalender | `FiCalendar` | `react-icons/fi` |
+| Settings | `FiSettings` | `react-icons/fi` |
+| Tambah | `FiPlus` | `react-icons/fi` |
+| Edit | `FiEdit2` | `react-icons/fi` |
+| Hapus | `FiTrash2` | `react-icons/fi` |
+| Detail / buka | `FiChevronRight` | `react-icons/fi` |
+| Foto/kamera | `FiCamera` | `react-icons/fi` |
+| Streak/api | `FaFire` | `react-icons/fa6` |
+| Centang selesai | `FiCheckCircle` | `react-icons/fi` |
+
+---
+
+## Efek 3D — Sistem Gamifikasi
+
+Ini adalah inti dari sistem visual PlannerKu. Semua elemen interaktif
+menggunakan efek "tombol fisik" yang memberikan sensasi menekan nyata.
+
+### Kelas Tailwind standar untuk kartu/tombol 3D
+
+```jsx
+// Kartu tugas / habit — keadaan normal
+className="bg-surface border border-border border-b-4 border-b-[#FF6B1A]
+           rounded-xl p-4 cursor-pointer
+           transition-all duration-100 active:translate-y-[2px] active:border-b-[1px]"
+
+// Tombol primary 3D
+className="bg-primary border-b-4 border-b-[#C4500D]
+           text-white font-semibold px-4 py-2 rounded-lg
+           transition-all duration-100 active:translate-y-[2px] active:border-b-[1px]"
+
+// Tombol secondary / ghost 3D
+className="bg-surface border border-border border-b-4 border-b-[#1A1A1A]
+           text-text-muted px-4 py-2 rounded-lg
+           transition-all duration-100 active:translate-y-[2px] active:border-b-[1px]"
+```
+
+### Aturan warna border-b (shadow 3D)
+
+| Warna elemen | Border-b (shadow) |
+|---|---|
+| Primary `#FF6B1A` | `#C4500D` (gelap 20%) |
+| Surface `#1E1E1E` | `#0A0A0A` |
+| Card `#252525` | `#111111` |
+| Success `#1D9E75` | `#14705A` |
+| Danger `#E24B4A` | `#A83535` |
+
+---
+
+## Komponen UI — Spesifikasi Final
+
+### Task Card (3D)
+
+```jsx
+<div className="bg-surface border border-border border-b-4 border-b-[#0A0A0A]
+                rounded-xl px-4 py-3 flex items-center gap-3
+                transition-all duration-100 active:translate-y-[2px] active:border-b">
+
+  {/* Checkbox gamifikasi — lingkaran besar */}
+  <button className="w-7 h-7 rounded-full border-[2.5px] border-primary
+                     flex items-center justify-center flex-shrink-0
+                     transition-all duration-150
+                     data-[done=true]:bg-primary data-[done=true]:border-primary">
+    {isDone && <FiCheck size={14} className="text-white" />}
   </button>
+
+  {/* Konten */}
+  <div className="flex-1 min-w-0">
+    <p className={`text-[13px] ${isDone ? 'line-through text-text-muted' : 'text-text'}`}>
+      {task.title}
+    </p>
+  </div>
+
+  {/* Tombol aksi — SELALU VISIBLE */}
+  <div className="flex items-center gap-1 border-l border-border pl-3">
+    <button className="p-1.5 rounded-lg hover:bg-card text-text-muted
+                       hover:text-info transition-colors">
+      <FiChevronRight size={14} />
+    </button>
+    <button className="p-1.5 rounded-lg hover:bg-card text-text-muted
+                       hover:text-primary transition-colors">
+      <FiEdit2 size={14} />
+    </button>
+    <button className="p-1.5 rounded-lg hover:bg-card text-text-muted
+                       hover:text-danger transition-colors">
+      <FiTrash2 size={14} />
+    </button>
+  </div>
 </div>
+```
+
+### Habit Coin (3D, animasi)
+
+```jsx
+{/* Koin 7 hari — w-6 h-6, bukan dot kecil */}
+<button
+  onClick={() => toggleHabit(habit.id, day)}
+  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center
+              transition-all duration-150
+              ${isDone
+                ? 'bg-primary border-primary scale-110'      // aktif: sedikit lebih besar
+                : 'bg-transparent border-border hover:border-primary'
+              }`}
+>
+  {isDone && (
+    <FiCheck
+      size={12}
+      className="text-white animate-[bounce_0.3s_ease-out]"
+    />
+  )}
+</button>
+```
+
+### Task Detail Sheet (Slide-out)
+
+```
+- Muncul dari kanan, overlay blur di belakang
+- Padding kiri lebih lega: pl-6 (bukan pl-4)
+- Setiap blok info (Deadline, Catatan, Lampiran) dibungkus kartu 3D terpisah
+- Tombol tutup di kiri atas (bukan kanan)
+```
+
+### Photo Lightbox
+
+```jsx
+{/* Pakai Dialog bawaan (shadcn/ui atau Headless UI) */}
+{/* JANGAN buka tab baru — gunakan overlay fullscreen */}
+<Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+  <DialogContent className="max-w-screen-lg bg-black/90 backdrop-blur-sm border-0">
+    <img src={selectedPhoto} className="w-full h-auto rounded-lg" />
+    <button onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 text-white">
+      <FiX size={24} />
+    </button>
+  </DialogContent>
+</Dialog>
+```
+
+### Kalender Grid (Baru)
+
+```
+Struktur satu kotak tanggal:
+┌─────────────────────┐
+│ 9  (kiri atas)  ● ● │  ← dots warna event di kanan atas
+│                     │
+│ ┃ Kumpul laporan   │  ← event dengan left-border warna
+│ ┃ Konsultasi dosen │  ← langsung tampil, klik = buka modal edit
+└─────────────────────┘
+```
+
+```jsx
+// Kotak tanggal
+<div className="border border-border rounded-lg p-2 min-h-[90px]
+                hover:border-primary/30 transition-colors">
+
+  {/* Header tanggal */}
+  <div className="flex justify-between items-start mb-1">
+    <span className={`text-[13px] font-medium
+                      ${isToday ? 'text-primary' : 'text-text-muted'}`}>
+      {day}
+    </span>
+    {/* Dots event di kanan atas */}
+    <div className="flex gap-0.5">
+      {events.slice(0,3).map(e => (
+        <div key={e.id} className="w-1.5 h-1.5 rounded-full" style={{background:e.color}} />
+      ))}
+    </div>
+  </div>
+
+  {/* Event list langsung tampil */}
+  {events.map(event => (
+    <div key={event.id}
+         onClick={() => openEditModal(event)}
+         className="text-[11px] text-text-muted px-1.5 py-0.5 mb-0.5
+                    rounded cursor-pointer hover:opacity-80
+                    border-l-2 truncate"
+         style={{borderColor: event.color, background: event.color + '15'}}>
+      {event.is_done && <span className="mr-1">✓</span>}
+      {event.title}
+    </div>
+  ))}
+</div>
+```
+
+---
+
+## Sidebar — Spesifikasi Final
+
+```
+Lebar: 52px (icon only)
+Background: bg-surface
+Border-right: 0.5px border-border
+
+Urutan ikon:
+1. FiGrid      → /dashboard
+2. FiTarget    → /tasks
+3. FaFire      → /habits
+4. FiCalendar  → /events
+5. FiSettings  → /settings (paling bawah)
+
+Ikon aktif: bg-primary text-white rounded-lg (w-8 h-8)
+Ikon non-aktif: text-text-faint hover:text-text-muted
 ```
 
 ---
 
 ## Tipografi
 
-Font: **system font** (`font-sans` Tailwind) — tidak perlu Google Fonts.
-
-| Elemen               | Size  | Weight | Warna token        |
-|----------------------|-------|--------|--------------------|
-| Logo / brand         | 15px  | 500    | `text-primary`     |
-| Heading halaman      | 20px  | 500    | `text-text`        |
-| Sub-heading / title  | 15px  | 500    | `text-text`        |
-| Body / label         | 13px  | 400    | `text-text`        |
-| Label sekunder       | 12px  | 400    | `text-text-muted`  |
-| Badge / chip         | 11px  | 500    | tergantung konteks |
-| Placeholder          | 13px  | 400    | `text-text-faint`  |
+| Elemen | Size | Weight | Warna |
+|---|---|---|---|
+| Logo | 15px | 600 | `text-primary` |
+| Heading halaman | 18-20px | 600 | `text-text` |
+| Body / label | 13px | 400 | `text-text` |
+| Label sekunder | 12px | 400 | `text-text-muted` |
+| Badge / chip | 11px | 500 | tergantung konteks |
+| Teks koin habit | 10px | 400 | `text-text-faint` |
 
 ---
 
-## Spacing & Radius
-
-| Token       | Value | Penggunaan                            |
-|-------------|-------|---------------------------------------|
-| `p-3`       | 12px  | Padding badge, chip, item kecil       |
-| `p-4`       | 16px  | Padding card standar                  |
-| `p-5`       | 20px  | Padding section / container           |
-| `gap-2`     | 8px   | Jarak elemen dalam list               |
-| `gap-3`     | 12px  | Jarak antar card dalam grid           |
-| `gap-4`     | 16px  | Jarak antar section                   |
-| `rounded-md`| 6px   | Elemen kecil (badge, input kecil)     |
-| `rounded-lg`| 8px   | Card, input, button standar           |
-| `rounded-xl`| 12px  | Modal, panel, card besar              |
-| `rounded-full` | 9999px | Badge pil, avatar, dot streak     |
-
----
-
-## Komponen UI
-
-### Button
+## Animasi
 
 ```
-Primary  → bg-primary text-white hover:bg-primary-light
-           px-4 py-2 text-[13px] rounded-lg transition-colors duration-150
-
-Ghost    → bg-transparent border border-border text-text-muted
-           hover:bg-card hover:text-text
-           px-4 py-2 text-[13px] rounded-lg transition-colors duration-150
-
-Danger   → bg-transparent border border-danger/30 text-danger
-           hover:bg-danger/10
-           px-4 py-2 text-[13px] rounded-lg transition-colors duration-150
-
-Kecil    → px-3 py-1.5 text-[11px] rounded-md
+Efek tekan 3D  : transition-all duration-100 active:translate-y-[2px]
+Hover transisi : transition-colors duration-150
+Koin centang   : animate-bounce (0.3s, sekali saat toggle)
+Modal masuk    : transition opacity + translateY, duration-200
 ```
 
-### Input & Textarea
-
-```
-bg-card border border-border text-text
-placeholder:text-text-faint
-focus:outline-none focus:ring-1 focus:ring-primary
-px-3 py-2 rounded-lg text-[13px]
-```
-
-### Card
-
-```
-bg-surface border border-border rounded-xl p-4
-hover:border-[#3A3A3A] transition-colors duration-150
-```
-
-### Badge / Tag kategori
-
-| Kategori | Background      | Teks          |
-|----------|----------------|---------------|
-| kuliah   | `#1E1A3A`      | `#A89BE8`     |
-| harian   | `bg-card`      | `text-muted`  |
-| penting  | `primary-dim`  | `text-primary`|
-| deadline lewat | `danger/15` | `text-danger` |
-| selesai  | `success/15`   | `text-success`|
-
-```html
-<!-- Contoh badge kuliah -->
-<span class="text-[11px] px-2 py-0.5 rounded-full font-medium"
-      style="background:#1E1A3A; color:#A89BE8">
-  kuliah
-</span>
-```
-
-### Sidebar icon
-
-```
-Wrapper: w-8 h-8 rounded-lg flex items-center justify-center
-Aktif  : bg-primary text-white
-Non-aktif: text-text-muted hover:text-text hover:bg-card
-Ukuran icon: 20px
-```
-
-### Stat card (dashboard)
-
-```
-bg-surface border border-border rounded-xl p-3
-
-Angka utama (misal jumlah tugas): text-[16px] font-medium text-primary
-Angka biasa                      : text-[16px] font-medium text-text
-Label                            : text-[11px] text-text-muted mt-0.5
-```
-
-### Task item
-
-```
-bg-surface hover:bg-card px-3 py-2 rounded-lg
-flex items-center gap-2.5 transition-colors duration-100
-
-Checkbox selesai  : w-3.5 h-3.5 bg-primary rounded-[3px] flex-shrink-0
-Checkbox belum    : w-3.5 h-3.5 border-[1.5px] border-border rounded-[3px] flex-shrink-0
-Teks selesai      : text-[12px] text-text-muted line-through flex-1
-Teks aktif        : text-[12px] text-text flex-1
-```
-
-### Habit dot tracker (7 hari)
-
-```
-Done : w-2.5 h-2.5 rounded-full bg-primary
-Miss : w-2.5 h-2.5 rounded-full bg-card border border-border
-```
-
-### Upgrade modal
-
-```
-bg-primary-dim border border-primary/20 rounded-xl p-4
-Teks heading : text-primary-light font-medium
-Teks body    : text-text-muted text-[13px]
-Tombol       : bg-primary text-white (primary button)
-```
-
----
-
-## Layout Global
-
-### Struktur halaman
-
-```
-┌─────────────────────────────────────────┐
-│  Topbar (h-11, bg-surface)              │
-│  border-b border-border                 │
-├──────────┬──────────────────────────────┤
-│ Sidebar  │  Konten utama                │
-│ w-13     │  bg-bg p-5                   │
-│ bg-surface│  min-h-[calc(100vh-44px)]   │
-│ border-r │                              │
-└──────────┴──────────────────────────────┘
-```
-
-### Topbar
-
-- Kiri: logo "PlannerKu" `text-primary font-medium text-[15px]`
-- Kanan: nama user (text-text-muted) + avatar + tombol logout (ghost)
-- `border-b border-border` dengan `border-width: 0.5px`
-
-### Sidebar
-
-- Width: `w-13` (52px), icon only — collapsed di mobile
-- Icon aktif: `bg-primary text-white rounded-lg`
-- Urutan: Dashboard · Tugas · Habit · Kalender · Pengaturan
-
-### Dashboard grid
-
-```
-[Tugas hari ini] [Streak] [Event minggu ini]  ← grid-cols-3 gap-3
-[Task list hari ini                        ]  ← col-span-full
-[Habit tracker minggu ini                  ]  ← col-span-full
-```
-
----
-
-## Animasi & Transisi
-
-Minimal. Hanya untuk feedback interaksi.
-
-```
-Hover elemen   : transition-colors duration-150
-Modal masuk    : transition opacity + scale, duration-200
-Centang tugas  : transition-colors duration-100
-```
-
-Tidak ada animasi dekoratif — fokus ke produktivitas, bukan wow-factor.
-
----
-
-## Icon
-
-Gunakan **Tabler Icons** (outline style, konsisten).
-
-| Konteks           | Ukuran |
-|-------------------|--------|
-| Sidebar           | 20px   |
-| Inline teks       | 16px   |
-| Tombol            | 16px   |
-| Empty state       | 32px   |
-
-Selalu tambahkan `aria-hidden="true"` pada icon dekoratif.
-
----
-
-## Dark Mode
-
-Seluruh UI adalah dark mode secara default.
-Tidak ada light mode toggle untuk saat ini.
+Tidak ada animasi dekoratif berlebihan — semua animasi adalah
+**response langsung terhadap interaksi user**, bukan dekorasi.

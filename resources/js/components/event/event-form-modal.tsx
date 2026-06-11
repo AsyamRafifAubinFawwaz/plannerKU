@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -18,6 +18,7 @@ interface Event {
     end_date: string;
     color: string | null;
     notes: string | null;
+    is_done: boolean;
 }
 
 interface Props {
@@ -72,6 +73,16 @@ export function EventFormModal({ open, onClose, event }: Props) {
         } else {
             form.post('/events', options);
         }
+    }
+
+    function toggleDone() {
+        if (!event) return;
+        router.patch(`/events/${event.id}/toggle-done`, {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                onClose();
+            }
+        });
     }
 
     return (
@@ -156,22 +167,36 @@ export function EventFormModal({ open, onClose, event }: Props) {
                         />
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-2">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            className="cursor-pointer"
-                            onClick={onClose}
-                        >
-                            Batal
-                        </Button>
-                        <Button
-                            type="submit"
-                            className="cursor-pointer"
-                            disabled={form.processing}
-                        >
-                            {form.processing ? 'Menyimpan...' : 'Simpan'}
-                        </Button>
+                    <div className="flex justify-between items-center pt-2">
+                        <div>
+                            {isEdit && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={toggleDone}
+                                    className={`cursor-pointer ${event?.is_done ? 'text-muted-foreground' : 'text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'}`}
+                                >
+                                    {event?.is_done ? 'Batal Selesai' : 'Tandai Selesai'}
+                                </Button>
+                            )}
+                        </div>
+                        <div className="flex gap-2">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="cursor-pointer"
+                                onClick={onClose}
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="cursor-pointer"
+                                disabled={form.processing}
+                            >
+                                {form.processing ? 'Menyimpan...' : 'Simpan'}
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </DialogContent>

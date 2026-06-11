@@ -18,4 +18,11 @@ class HabitLog extends Model
    public function user(){
         return $this->belongsTo(User::class);
    }
+
+   protected function casts(): array
+   {
+       return [
+           'logged_date' => 'date',
+       ];
+   }
 }

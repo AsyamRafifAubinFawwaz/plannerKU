@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Task extends Model
 {
@@ -40,5 +41,17 @@ class Task extends Model
     public function scopeDueToday($query)
     {
         return $query->whereDate('due_date', today());
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Task $task) {
+            // Hapus file fisik dari storage jika ada lampiran
+            if (!empty($task->attachments)) {
+                foreach ($task->attachments as $photoPath) {
+                    Storage::disk('public')->delete($photoPath);
+                }
+            }
+        });
     }
 }

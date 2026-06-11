@@ -8,22 +8,25 @@ trigger: always_on
 
 PlannerKu adalah web app produktivitas harian berbasis freemium
 yang menggabungkan task planner, habit tracker, dan kalender
-dalam satu antarmuka yang simpel.
+dalam satu antarmuka gamified yang interaktif.
 
 Target pengguna: mahasiswa dan masyarakat umum Indonesia.
 
 ---
 
+## Status UI/UX Frontend
+
+> ✅ **Phase 3 (Frontend) sudah 100% selesai.**
+> Semua halaman dan komponen sudah matang dengan tema Gamified 3D.
+> Next step adalah backend (Phase 2) dan wiring Inertia.
+
+---
+
 ## Problem Statement
 
-Banyak orang Indonesia — terutama mahasiswa — memakai banyak
-aplikasi terpisah untuk mencatat tugas, melacak kebiasaan, dan
-mengingat jadwal. Belum ada solusi lokal yang menggabungkan
-ketiganya dengan harga terjangkau dan bahasa Indonesia.
-
-Masalah tambahan: user sering lupa detail tugasnya karena
-informasi asli (foto soal, screenshot WA dosen, foto papan tulis)
-tersebar di galeri HP dan tidak terhubung ke planner.
+Mahasiswa Indonesia memakai banyak app terpisah untuk tugas, kebiasaan,
+dan jadwal. Belum ada solusi lokal yang menggabungkan ketiganya
+dengan desain yang menyenangkan, harga terjangkau, dan bahasa Indonesia.
 
 ---
 
@@ -33,105 +36,123 @@ tersebar di galeri HP dan tidak terhubung ke planner.
 
 | Fitur | Gratis | Pro |
 |---|---|---|
-| Tambah tugas dengan judul, kategori, deadline | ✅ | ✅ |
-| Tandai tugas selesai | ✅ | ✅ |
-| Label kategori: kuliah / harian / penting | ✅ | ✅ |
+| Tambah tugas: judul, kategori, deadline | ✅ | ✅ |
+| Checkbox gamifikasi (lingkaran besar) | ✅ | ✅ |
+| Label: kuliah / harian / penting | ✅ | ✅ |
+| Tombol Detail, Edit, Hapus selalu visible | ✅ | ✅ |
 | Catatan tambahan per tugas | ✅ | ✅ |
-| Lampiran foto per tugas (maks 1 foto, maks 2MB) | ✅ | ✅ |
-| Lampiran foto per tugas (maks 3 foto, maks 5MB/foto) | ❌ | ✅ |
-| AI scan foto → auto-isi judul & deadline tugas | ❌ | ✅ |
-| Maks 20 tugas per bulan | ✅ limit | ✅ unlimited |
-| Export tugas ke PDF | ❌ | ✅ |
+| Lampiran foto (1 foto, 2MB) | ✅ | ✅ |
+| Lightbox fullscreen saat klik foto | ✅ | ✅ |
+| Lampiran foto (3 foto, 5MB/foto) | ❌ | ✅ |
+| AI scan foto → auto-fill form | ❌ | ✅ |
+| Maks 20 tugas per bulan | ✅ limit | ✅ tak terbatas |
+| Export PDF | ❌ | ✅ |
 
 ### Modul 2 — Habit Tracker
 
 | Fitur | Gratis | Pro |
 |---|---|---|
-| Tambah kebiasaan dengan nama & icon | ✅ | ✅ |
-| Centang kebiasaan harian | ✅ | ✅ |
-| Lihat streak & dot 7 hari | ✅ | ✅ |
-| Maks 3 habit aktif | ✅ limit | ✅ unlimited |
+| Tambah habit dengan nama & icon | ✅ | ✅ |
+| Koin 3D animasi — centang harian | ✅ | ✅ |
+| Animasi bouncing saat habit selesai | ✅ | ✅ |
+| Streak harian otomatis 🔥 | ✅ | ✅ |
+| Dot tracker 7 hari (koin w-6 h-6) | ✅ | ✅ |
+| Maks 3 habit aktif | ✅ limit | ✅ tak terbatas |
 | Statistik & grafik kemajuan | ❌ | ✅ |
-| Template kebiasaan siap pakai | ❌ | ✅ |
+| Template habit siap pakai | ❌ | ✅ |
+| Notifikasi WhatsApp harian | ❌ | ✅ |
 
 ### Modul 3 — Kalender
 
 | Fitur | Gratis | Pro |
 |---|---|---|
-| Lihat kalender mingguan | ✅ | ✅ |
+| Grid kalender mingguan & bulanan | ✅ | ✅ |
+| Tanggal di kiri atas, dots di kanan atas | ✅ | ✅ |
+| Event tampil langsung di kotak tanggal | ✅ | ✅ |
+| Left-border warna per event | ✅ | ✅ |
+| Klik event → langsung buka modal Edit | ✅ | ✅ |
 | Tambah event dengan warna label | ✅ | ✅ |
-| Support event multi-hari | ✅ | ✅ |
-| Maks 10 event total | ✅ limit | ✅ unlimited |
-| Notifikasi WhatsApp H-1 event | ❌ | ✅ |
-| Recurring event (mingguan/bulanan) | ❌ | ✅ |
+| Event multi-hari (start_date + end_date) | ✅ | ✅ |
+| **Toggle selesai per event (is_done)** | ✅ | ✅ |
+| Maks 10 event total | ✅ limit | ✅ tak terbatas |
+| Notifikasi WA H-1 event | ❌ | ✅ |
+| Recurring event | ❌ | ✅ |
 
-### Fitur umum
+### Fitur Umum
 
 | Fitur | Gratis | Pro |
 |---|---|---|
 | Dashboard ringkasan harian | ✅ | ✅ |
-| Akun & profil | ✅ | ✅ |
-| Login via email + password | ✅ | ✅ |
-| Login via passkey | ✅ | ✅ |
+| Login email + password | ✅ | ✅ |
+| Login passkey | ✅ | ✅ |
 | Two-factor authentication | ✅ | ✅ |
-| Notifikasi WhatsApp harian (ringkasan tugas) | ❌ | ✅ |
+| Notif WhatsApp harian (ringkasan tugas) | ❌ | ✅ |
 
 ---
 
-## Fitur Foto Tugas — Detail
+## Fitur Event `is_done` — Detail
 
-### Konsep
+### Latar belakang
 
-User bisa melampirkan foto langsung saat tambah atau edit tugas.
-Foto ditampilkan sebagai thumbnail kecil di task card —
-user klik untuk lihat full size.
+User ingin bisa menandai event di kalender sebagai "sudah selesai"
+tanpa harus menghapus event tersebut dari kalender.
+Contoh: "Kumpul laporan PKL" — setelah dikumpul, tinggal centang selesai.
 
-Contoh use case:
-- Foto screenshot tugas dari grup WA dosen
-- Foto soal ujian dari papan tulis
-- Foto catatan kuliah yang perlu diselesaikan
-- Screenshot deadline dari portal akademik
+### Perubahan database yang dibutuhkan
 
-### Batasan per tier
+Migration baru (bukan edit migration lama):
+
+```php
+// Migration: add_is_done_to_events_table
+$table->boolean('is_done')->default(false)->after('color');
+```
+
+Kolom `start_date` dan `end_date` sudah ada di tabel events.
+Jika belum, tambahkan sekalian di migration yang sama.
+
+### Tampilan di kalender
+
+```
+Event belum selesai : ┃ Kumpul laporan PKL
+Event sudah selesai : ┃ ✓ Kumpul laporan PKL  (teks muted + strikethrough)
+```
+
+### Controller method baru
+
+```php
+// EventController
+public function toggleDone(Event $event)
+{
+    $this->authorize('update', $event);
+    $event->update(['is_done' => ! $event->is_done]);
+    return back()->with('success', $event->is_done ? 'Event selesai!' : 'Event dibatalkan.');
+}
+```
+
+```php
+// Route baru
+Route::patch('events/{event}/toggle-done', [EventController::class, 'toggleDone'])
+    ->name('events.toggle-done');
+```
+
+---
+
+## Fitur Foto Lampiran — Detail
 
 | Batasan | Gratis | Pro |
 |---|---|---|
-| Jumlah foto per tugas | 1 foto | 3 foto |
-| Ukuran maksimal per foto | 2 MB | 5 MB |
-| Format yang diterima | JPG, PNG, WEBP | JPG, PNG, WEBP, HEIC |
+| Jumlah foto per tugas | 1 | 3 |
+| Ukuran per foto | 2MB | 5MB |
+| Format | JPG, PNG, WEBP | + HEIC |
 | AI scan & auto-fill | ❌ | ✅ |
-| Total storage per user | 50 MB | 2 GB |
+| Storage per user | 50MB | 2GB |
 
-### Alur upload (gratis)
+### Lightbox (sudah selesai di frontend)
 
-```
-User buka form tambah/edit tugas
-→ Klik tombol "Lampirkan foto"
-→ Pilih 1 foto dari galeri / kamera
-→ Foto di-compress otomatis di frontend sebelum upload
-→ Tersimpan di storage Laravel (disk: public atau S3)
-→ Path foto disimpan di kolom `attachments` (JSON) di tabel tasks
-→ Tampil sebagai thumbnail 60×60px di task card
-```
-
-### Alur AI scan (Pro)
-
-```
-User upload foto
-→ Backend kirim foto ke Claude API (vision)
-→ AI ekstrak: judul tugas, deadline, deskripsi
-→ Form auto-terisi dengan hasil ekstraksi
-→ User bisa edit sebelum simpan
-→ Hemat waktu input manual
-```
-
-### Komponen yang dibutuhkan
-
-- `TaskAttachment.vue` — thumbnail grid + preview full
-- `PhotoUploader.vue` — input file + compress + preview sebelum upload
-- `AttachmentService.php` — handle upload, validasi, hapus file
-- Kolom `attachments` (JSON) di tabel `tasks`
-- Storage disk yang terkonfigurasi (local untuk dev, S3/R2 untuk prod)
+- Tidak membuka tab baru
+- Menggunakan komponen `Dialog` fullscreen
+- Background blur (`backdrop-blur-sm`)
+- Bisa ditutup dengan klik luar area atau tombol X
 
 ---
 
@@ -139,88 +160,79 @@ User upload foto
 
 | Tier | Harga | Keterangan |
 |---|---|---|
-| Gratis | Rp 0 | Selamanya, tidak perlu kartu kredit |
+| Gratis | Rp 0 | Selamanya |
 | Pro | Rp 19.000/bulan | atau Rp 149.000/tahun |
-| Max | Rp 39.000/bulan | atau Rp 299.000/tahun (multi-akun, AI) |
+| Max | Rp 39.000/bulan | Multi-akun, AI, Timeline group |
 
-### Mekanisme upgrade (MVP)
+### Payment MVP: Transfer Manual
 
-1. User gratis kena limit → muncul modal upgrade
-2. User pilih paket → diarahkan ke halaman konfirmasi
-3. User transfer manual ke rekening
-4. Admin konfirmasi → `plan` di-update manual via panel/tinker
-5. Fitur Pro langsung aktif
-
-> Payment gateway (Midtrans) dikerjakan setelah MVP live.
-
----
-
-## Batasan MVP (yang tidak dikerjakan dulu)
-
-- ❌ Multi-akun / sharing (fitur Max)
-- ❌ AI ringkas tugas & prioritas (fitur Max)
-- ❌ Export PDF (bisa ditambah setelah MVP)
-- ❌ Recurring event
-- ❌ Full-text search
-- ❌ Mobile app / PWA
-- ❌ Midtrans payment gateway
-- ❌ Dark/light mode toggle
-- ❌ AI scan foto (fitur Pro — dikerjakan setelah core selesai)
-- ❌ Upload ke S3/R2 (pakai local storage dulu untuk MVP)
+```
+User kena limit → UpgradeModal
+→ /pricing → pilih paket
+→ Instruksi transfer rekening
+→ Konfirmasi ke admin
+→ Admin jalankan: php artisan plan:activate {id} {plan}
+→ Fitur Pro aktif ✅
+```
 
 ---
 
 ## Alur User Utama
 
-### Alur onboarding
+### Tambah tugas dengan foto
 
 ```
-Daftar → Login → Dashboard kosong
-→ Muncul prompt "Tambah tugas pertamamu"
-→ User tambah tugas / habit / event
-→ Mulai pakai
-```
-
-### Alur tambah tugas dengan foto
-
-```
-User klik "Tambah tugas"
+Klik "+ Task baru"
 → Isi judul, kategori, deadline
-→ (opsional) Klik ikon kamera → pilih foto
-→ Foto tampil sebagai preview kecil di form
-→ Klik Simpan
-→ Task card muncul di list dengan thumbnail foto
-→ Klik thumbnail → foto tampil full screen
+→ (opsional) Upload foto → preview langsung
+→ Simpan → task muncul di list dengan thumbnail
+→ Klik thumbnail → Lightbox fullscreen
 ```
 
-### Alur upgrade
+### Centang habit (koin animasi)
 
 ```
-User kena limit (task ke-21, habit ke-4, event ke-11,
-atau coba upload foto ke-2 saat gratis)
-→ Muncul UpgradeModal
-→ User klik "Lihat paket"
-→ Halaman pricing
-→ User pilih Pro / Max
-→ Halaman konfirmasi + instruksi transfer manual
-→ Tunggu konfirmasi admin
-→ Email notifikasi aktif
+Lihat baris habit
+→ Klik koin hari ini
+→ Koin berubah oranye + icon ✓ muncul dengan animasi bounce
+→ Streak +1 otomatis
+→ Jika streak baru = rekor → muncul celebration toast
+```
+
+### Tandai event selesai
+
+```
+Lihat kalender → event tampil di kotak tanggal
+→ Klik event → modal edit terbuka
+→ Klik tombol "Tandai Selesai"
+→ Event di kalender berubah: teks muted + strikethrough + ikon ✓
+→ Event tidak hilang dari kalender
 ```
 
 ---
 
-## Kriteria Selesai (Definition of Done) MVP
+## Batasan MVP (belum dikerjakan)
 
-- [ ] Semua migration ter-migrate tanpa error
-- [ ] User bisa daftar, login, dan logout
-- [ ] User bisa tambah / selesaikan / hapus tugas
-- [ ] User bisa lampirkan 1 foto saat tambah/edit tugas
-- [ ] Foto tampil sebagai thumbnail di task card
-- [ ] Foto terhapus otomatis saat task dihapus
-- [ ] User bisa tambah habit dan centang harian
-- [ ] Streak terhitung otomatis
-- [ ] User bisa tambah event di kalender
-- [ ] Dashboard menampilkan ringkasan hari ini
-- [ ] Limit gratis berjalan (modal upgrade muncul)
-- [ ] Halaman settings (ganti nama, WA number)
-- [ ] Website bisa diakses publik via domain
+- ❌ Timeline Gantt view (personal)
+- ❌ Group project / multi-akun (Max)
+- ❌ AI scan foto
+- ❌ Export PDF
+- ❌ Recurring event
+- ❌ Full-text search
+- ❌ Mobile app / PWA
+- ❌ Midtrans payment gateway
+
+---
+
+## Definition of Done MVP
+
+- [ ] Migration baru `events` (is_done) selesai dan ter-migrate
+- [ ] Semua Model selesai (Task, Habit, HabitLog, Event, Subscription)
+- [ ] Semua Controller + Route terhubung
+- [ ] Inertia props wired ke semua halaman Vue
+- [ ] Toggle `is_done` event berjalan di kalender
+- [ ] Upload & lightbox foto berjalan end-to-end
+- [ ] Habit streak terhitung otomatis
+- [ ] Limit gratis berjalan (UpgradeModal muncul)
+- [ ] Notif WA harian berjalan untuk user Pro
+- [ ] Website live dan bisa diakses publik

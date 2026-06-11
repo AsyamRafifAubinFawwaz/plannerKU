@@ -38,4 +38,11 @@ class EventController extends Controller
         $event->delete();
         return back()->with('success', 'Event berhasil di hapus');
     }
+
+    public function toggleDone(Event $event)
+    {
+        $this->authorize('update', $event);
+        $event->update(['is_done' => !$event->is_done]);
+        return back()->with('success', $event->is_done ? 'Event selesai!' : 'Event dibatalkan.');
+    }
 }

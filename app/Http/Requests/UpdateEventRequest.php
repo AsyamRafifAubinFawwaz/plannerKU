@@ -27,7 +27,8 @@ class UpdateEventRequest extends FormRequest
             'start_date' => ['sometimes', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'color' => ['nullable', 'string'],
-            'notes' => ['nullable', 'string']
+            'notes' => ['nullable', 'string'],
+            'is_done' => ['sometimes', 'boolean']
         ];
     }
 }

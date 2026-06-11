@@ -25,6 +25,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('events', EventController::class)
         ->only(['index', 'store', 'update', 'destroy'])
         ->names('events');
+        
+    Route::patch('events/{event}/toggle-done', [EventController::class, 'toggleDone'])
+        ->name('events.toggle-done');
 });
 
 

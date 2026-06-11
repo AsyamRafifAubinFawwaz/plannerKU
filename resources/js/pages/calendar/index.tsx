@@ -13,6 +13,7 @@ interface Event {
     end_date: string;
     color: string | null;
     notes: string | null;
+    is_done: boolean;
 }
 
 interface Props {
@@ -177,7 +178,8 @@ export default function CalendarIndex({ events }: Props) {
                                                         style={{ borderColor: event.color ?? '#FF6B1A' }}
                                                         onClick={(e) => { e.stopPropagation(); setEventToEdit(event); setFormOpen(true); }}
                                                     >
-                                                        <span className="text-[13px] font-bold text-white truncate leading-tight">
+                                                        <span className={`text-[13px] font-bold truncate leading-tight flex items-center gap-1 ${event.is_done ? 'text-muted-foreground line-through' : 'text-white'}`}>
+                                                            {event.is_done && <span className="text-emerald-500">✓</span>}
                                                             {event.title}
                                                         </span>
                                                         {event.notes && (
