@@ -24,7 +24,6 @@ class SendDailyWaReminder extends Command
         $count = 0;
 
         foreach ($users as $user) {
-            // Hanya user Pro yang dikirimi notifikasi
             if (!$user->isPro()) continue;
 
             $tasks = $user->tasks()
@@ -37,7 +36,6 @@ class SendDailyWaReminder extends Command
                 ->where('is_active', true)
                 ->get();
 
-            // Jika tidak ada apa-apa, skip
             if ($tasks->isEmpty() && $habits->isEmpty()) continue;
 
             $message = "Halo *{$user->name}* 👋\nBerikut ringkasan PlannerKu kamu hari ini:\n\n";
@@ -58,9 +56,19 @@ class SendDailyWaReminder extends Command
                 $message .= "\n";
             }
 
-            $message .= "Jangan lupa selesaikan misimu hari ini ya! Semangat! 💪";
+            $motivations = [
+                "Jangan lupa selesaikan misimu hari ini ya! Semangat! 💪",
+                "Langkah kecil setiap hari membuat perbedaan besar. Ayo beraksi! 🔥",
+                "Fokus pada prosesnya, bukan hanya hasilnya. Kamu pasti bisa! 🚀",
+                "Setiap tugas yang dicentang adalah satu langkah lebih dekat ke mimpimu. ✨",
+                "Jangan tunggu motivasi datang, mulailah dan motivasi akan mengikuti! 🏃‍♂️",
+                "Beri dirimu apresiasi atas setiap progres hari ini. Keep going! 🌟",
+                "Waktunya bersinar! Selesaikan misimu hari ini dengan senyuman. 😊"
+            ];
+            
+            $randomMotivation = $motivations[array_rand($motivations)];
+            $message .= $randomMotivation;
 
-            // Kirim via Fonnte Service
             $success = $waService->send($user, $message);
             if ($success) $count++;
         }

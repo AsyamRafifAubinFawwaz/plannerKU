@@ -59,10 +59,20 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Event::class);
     }
 
-    // public function subscriptions()
-    // {
-    //     return $this->hasMany(Subscription::class);
-    // }
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function ownedWorkspaces()
+    {
+        return $this->hasMany(Workspace::class, 'owner_id');
+    }
+
+    public function workspaces()
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_user')->withPivot('role')->withTimestamps();
+    }
 
     // ─────────────────────────────────────────
     // Helper plan
@@ -100,7 +110,7 @@ class User extends Authenticatable implements PasskeyUser
             ->whereYear('created_at', now()->year)
             ->count();
 
-        return $count < 20;
+        return $count < 10;
     }
 
     public function canAddHabit(): bool

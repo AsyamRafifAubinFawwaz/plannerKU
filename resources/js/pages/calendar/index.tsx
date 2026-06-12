@@ -1,7 +1,8 @@
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EventFormModal } from '@/components/event/event-form-modal';
 import { Button } from '@/components/ui/button';
-import { Head, router } from '@inertiajs/react';
+import { UpgradeModal } from '@/components/shared/upgrade-modal';
+import { Head, router, usePage } from '@inertiajs/react';
 import { FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -32,6 +33,19 @@ export default function CalendarIndex({ events }: Props) {
     const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+
+    const { auth } = usePage().props as any;
+    const canAddEvent = auth?.limits?.canAddEvent ?? true;
+
+    function openCreate() {
+        if (!canAddEvent) {
+            setUpgradeModalOpen(true);
+            return;
+        }
+        setEventToEdit(null);
+        setFormOpen(true);
+    }
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -103,7 +117,7 @@ export default function CalendarIndex({ events }: Props) {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-[22px] font-medium text-foreground">Kalender</h1>
-                    <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg px-4" onClick={() => setFormOpen(true)}>
+                    <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg px-4" onClick={openCreate}>
                         + Tambah event
                     </Button>
                 </div>
@@ -249,6 +263,13 @@ export default function CalendarIndex({ events }: Props) {
                 title="Hapus event ini?"
                 description={`"${eventToDelete?.title}" akan dihapus permanen.`}
                 loading={deleting}
+            />
+
+            <UpgradeModal
+                open={upgradeModalOpen}
+                onClose={() => setUpgradeModalOpen(false)}
+                title="Limit Kalender Tercapai"
+                description="Kamu telah mencapai batas maksimal 10 event di paket Gratis."
             />
         </>
     );

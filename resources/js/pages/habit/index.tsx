@@ -3,7 +3,8 @@ import { HabitFormModal } from '@/components/habit/habit-form-modal';
 import { HabitRow } from '@/components/habit/habit-row';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
+import { UpgradeModal } from '@/components/shared/upgrade-modal';
+import { Head, router, usePage, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -28,8 +29,16 @@ export default function HabitIndex({ habits }: Props) {
     const [habitToEdit, setHabitToEdit] = useState<Habit | null>(null);
     const [habitToDelete, setHabitToDelete] = useState<Habit | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+
+    const { auth } = usePage().props as any;
+    const canAddHabit = auth?.limits?.canAddHabit ?? true;
 
     function openCreate() {
+        if (!canAddHabit) {
+            setUpgradeModalOpen(true);
+            return;
+        }
         setHabitToEdit(null);
         setFormOpen(true);
     }
@@ -106,9 +115,9 @@ export default function HabitIndex({ habits }: Props) {
                                 <p className="text-sm text-muted-foreground">Upgrade ke Pro untuk habit tak terbatas + notif WhatsApp</p>
                             </div>
                         </div>
-                        <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer transition-colors">
+                        <Link href="/pricing" className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white px-4 py-2 rounded-lg font-medium transition-colors">
                             Upgrade Pro
-                        </Button>
+                        </Link>
                     </div>
                 )}
 
@@ -169,6 +178,13 @@ export default function HabitIndex({ habits }: Props) {
                 title="Hapus habit ini?"
                 description={`"${habitToDelete?.name}" akan dihapus permanen dan tidak bisa dikembalikan.`}
                 loading={deleting}
+            />
+
+            <UpgradeModal
+                open={upgradeModalOpen}
+                onClose={() => setUpgradeModalOpen(false)}
+                title="Limit Habit Tercapai"
+                description="Kamu telah mencapai batas maksimal 3 habit aktif di paket Gratis."
             />
         </>
     );

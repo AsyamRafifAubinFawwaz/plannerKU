@@ -3,8 +3,9 @@ import { TaskDetailSheet } from '@/components/task/task-detail-sheet';
 import { TaskFormModal } from '@/components/task/task-form-modal';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { Head, router } from '@inertiajs/react';
-import { FiCamera, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { UpgradeModal } from '@/components/shared/upgrade-modal';
+import { Head, router, usePage } from '@inertiajs/react';
+import { FiCamera, FiEye, FiEdit2, FiTrash2, FiFileText, FiPlus } from 'react-icons/fi';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -39,8 +40,16 @@ export default function TasksIndex({ tasks }: Props) {
     const [deleting, setDeleting] = useState(false);
     const [taskDetail, setTaskDetail] = useState<Task | null>(null);
     const [activeFilter, setActiveFilter] = useState('Semua');
+    const [upgradeModalType, setUpgradeModalType] = useState<'task' | 'pdf' | null>(null);
+    
+    const { auth } = usePage().props as any;
+    const canAddTask = auth?.limits?.canAddTask ?? true;
 
     function openCreate() {
+        if (!canAddTask) {
+            setUpgradeModalType('task');
+            return;
+        }
         setTaskToEdit(null);
         setFormOpen(true);
     }
@@ -72,6 +81,14 @@ export default function TasksIndex({ tasks }: Props) {
         });
     }
 
+    const handleExportPdf = () => {
+        if (!auth?.user?.isMax) {
+            setUpgradeModalType('pdf');
+            return;
+        }
+        window.location.href = '/tasks/export';
+    };
+
     const filteredTasks = tasks.filter(t => {
         if (activeFilter === 'Semua') return true;
         return t.category.toLowerCase() === activeFilter.toLowerCase();
@@ -85,9 +102,14 @@ export default function TasksIndex({ tasks }: Props) {
                 {/* Header Utama */}
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-2xl font-medium text-foreground">Tugas</h1>
-                    <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg" onClick={openCreate}>
-                        + Tambah tugas
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" className="cursor-pointer rounded-lg border-2" onClick={handleExportPdf}>
+                            <FiFileText className="mr-2 h-4 w-4" /> Unduh PDF
+                        </Button>
+                        <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg" onClick={openCreate}>
+                            <FiPlus className="mr-2 h-4 w-4" /> Tambah tugas
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Filter Chips */}
@@ -224,6 +246,18 @@ export default function TasksIndex({ tasks }: Props) {
                 open={!!taskDetail}
                 task={taskDetail}
                 onClose={() => setTaskDetail(null)}
+            />
+            <UpgradeModal
+                open={upgradeModalType === 'task'}
+                onClose={() => setUpgradeModalType(null)}
+                title="Limit Tugas Tercapai"
+                description={`Kamu telah mencapai batas maksimal ${auth?.limits?.tasks?.max ?? 10} tugas bulan ini.`}
+            />
+            <UpgradeModal
+                open={upgradeModalType === 'pdf'}
+                onClose={() => setUpgradeModalType(null)}
+                title="Fitur Khusus Max"
+                description="Fitur Export ke PDF hanya tersedia untuk pengguna paket Max. Upgrade sekarang untuk mencetak jadwalmu!"
             />
         </>
     );

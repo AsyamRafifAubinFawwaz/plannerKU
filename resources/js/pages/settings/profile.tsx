@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import type { Auth } from '@/types';
+import { UpgradeModal } from '@/components/shared/upgrade-modal';
+import { useState } from 'react';
+import { FiMessageCircle } from 'react-icons/fi';
 
 type PageProps = {
     auth: Auth;
@@ -23,6 +26,18 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const isPro = (auth as any)?.user?.isPro ?? false;
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    const [waEnabled, setWaEnabled] = useState(false);
+
+    const handleWaToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!isPro) {
+            e.preventDefault();
+            setUpgradeModalOpen(true);
+            return;
+        }
+        setWaEnabled(e.target.checked);
+    };
 
     return (
         <>
@@ -123,7 +138,43 @@ export default function Profile({
                 </Form>
             </div>
 
+            {/* WA Notification Bait */}
+            <div className="space-y-6 mt-10 p-6 bg-surface border border-border rounded-xl">
+                <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-success/10 text-success flex items-center justify-center flex-shrink-0">
+                        <FiMessageCircle size={20} />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-lg font-bold text-foreground mb-1">Notifikasi WhatsApp Harian</h3>
+                        <p className="text-sm text-muted-foreground mb-4">Dapatkan ringkasan tugas dan habit yang belum selesai setiap pagi pukul 07:00 WIB. Gratis uji coba fitur ini di paket Pro!</p>
+                        
+                        <div className="flex items-center gap-4">
+                            <Label htmlFor="wa_toggle" className="flex items-center gap-3 cursor-pointer">
+                                <div className="relative">
+                                    <input 
+                                        type="checkbox" 
+                                        id="wa_toggle" 
+                                        className="sr-only peer"
+                                        checked={waEnabled}
+                                        onChange={handleWaToggle}
+                                    />
+                                    <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-success"></div>
+                                </div>
+                                <span className="text-sm font-medium text-foreground">Aktifkan Notifikasi</span>
+                            </Label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <DeleteUser />
+
+            <UpgradeModal 
+                open={upgradeModalOpen} 
+                onClose={() => setUpgradeModalOpen(false)} 
+                title="Fitur Khusus Pro"
+                description="Fitur Notifikasi WhatsApp otomatis tiap pagi hanya tersedia untuk paket Pro dan Max."
+            />
         </>
     );
 }

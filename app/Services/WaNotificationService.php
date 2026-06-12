@@ -10,7 +10,6 @@ class WaNotificationService
 {
     public function send(User $user, string $message): bool
     {
-        // 1. Cek apakah user punya nomor WA dan fitur Pro
         if (!$user->wa_number || !$user->isPro()) {
             return false;
         }
