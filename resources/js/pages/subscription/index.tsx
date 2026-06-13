@@ -12,7 +12,6 @@ export default function SubscriptionIndex() {
             <Head title="Upgrade Paket" />
 
             <div className="p-8 w-full max-w-4xl mx-auto mt-4 relative">
-                {/* Tombol Kembali karena tidak pakai AppLayout */}
                 <Link href="/dashboard" className="absolute top-8 left-8 text-text-muted hover:text-white flex items-center gap-2 font-medium transition-colors">
                     &larr; Kembali
                 </Link>
@@ -22,7 +21,6 @@ export default function SubscriptionIndex() {
                     <p className="text-text-muted font-medium">Maksimalkan potensimu dengan fitur tanpa batas.</p>
                 </div>
 
-                {/* Container max-w-3xl agar 2 card pas bersandingan */}
                 <div className="grid md:grid-cols-2 gap-8 items-center max-w-3xl mx-auto">
                     {/* Pro */}
                     <div className="bg-surface border-2 border-primary border-b-[8px] border-b-[#C4500D] rounded-3xl p-8 relative">
