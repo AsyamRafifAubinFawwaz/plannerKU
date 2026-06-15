@@ -1,17 +1,25 @@
 import { Head, usePage, useForm, router } from '@inertiajs/react';
-import { useState } from 'react';
-import { FiUsers, FiPlus, FiChevronLeft, FiUserPlus } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiUsers, FiPlus, FiChevronLeft, FiUserPlus, FiImage, FiX } from 'react-icons/fi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from '@inertiajs/react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 export default function CollaborationShow({ workspace }: any) {
     const { auth } = usePage().props as any;
     const [createTaskOpen, setCreateTaskOpen] = useState(false);
     const [inviteMemberOpen, setInviteMemberOpen] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [localTasks, setLocalTasks] = useState(workspace.tasks || []);
+
+    useEffect(() => {
+        setLocalTasks(workspace.tasks || []);
+    }, [workspace.tasks]);
 
     const taskForm = useForm({
         title: '',
+        image: null as File | null,
     });
 
     const inviteForm = useForm({
@@ -23,9 +31,18 @@ export default function CollaborationShow({ workspace }: any) {
         taskForm.post(`/collaboration/${workspace.id}/tasks`, {
             onSuccess: () => {
                 setCreateTaskOpen(false);
+                setImagePreview(null);
                 taskForm.reset();
             },
         });
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            taskForm.setData('image', file);
+            setImagePreview(URL.createObjectURL(file));
+        }
     };
 
     const submitInvite = (e: React.FormEvent) => {
@@ -39,16 +56,40 @@ export default function CollaborationShow({ workspace }: any) {
     };
 
     const updateTaskStatus = (taskId: number, newStatus: string) => {
+        // Optimistic UI update
+        setLocalTasks((prev: any[]) => 
+            prev.map(task => task.id === taskId ? { ...task, status: newStatus } : task)
+        );
+
         router.patch(`/workspace-tasks/${taskId}/status`, {
             status: newStatus,
         }, {
             preserveScroll: true,
+            onError: () => {
+                // Revert on error
+                setLocalTasks(workspace.tasks || []);
+            }
         });
     };
 
-    const tasksTodo = workspace.tasks.filter((t: any) => t.status === 'todo');
-    const tasksDoing = workspace.tasks.filter((t: any) => t.status === 'doing');
-    const tasksDone = workspace.tasks.filter((t: any) => t.status === 'done');
+    const onDragEnd = (result: DropResult) => {
+        if (!result.destination) return;
+
+        const { source, destination, draggableId } = result;
+
+        if (source.droppableId === destination.droppableId) {
+            return;
+        }
+
+        const taskId = parseInt(draggableId.replace('task-', ''));
+        const newStatus = destination.droppableId;
+        
+        updateTaskStatus(taskId, newStatus);
+    };
+
+    const tasksTodo = localTasks.filter((t: any) => t.status === 'todo');
+    const tasksDoing = localTasks.filter((t: any) => t.status === 'doing');
+    const tasksDone = localTasks.filter((t: any) => t.status === 'done');
 
     return (
         <>
@@ -99,73 +140,127 @@ export default function CollaborationShow({ workspace }: any) {
                 </div>
 
                 {/* Kanban Board */}
-                <div className="flex gap-6 overflow-x-auto pb-4 flex-1">
-                    
-                    {/* To Do */}
-                    <div className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-white">To Do</h3>
-                            <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksTodo.length}</span>
-                        </div>
-                        <div className="space-y-3 overflow-y-auto pr-1">
-                            {tasksTodo.map((task: any) => (
-                                <div key={task.id} className="bg-card border border-border p-3 rounded-xl group">
-                                    <p className="text-sm text-foreground font-medium mb-3">{task.title}</p>
-                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => updateTaskStatus(task.id, 'doing')} className="text-[11px] bg-warning/10 text-warning px-2 py-1 rounded hover:bg-warning/20 transition-colors">→ Doing</button>
-                                        <button onClick={() => updateTaskStatus(task.id, 'done')} className="text-[11px] bg-success/10 text-success px-2 py-1 rounded hover:bg-success/20 transition-colors">→ Done</button>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <div className="flex gap-6 overflow-x-auto pb-4 flex-1">
+                        
+                        {/* To Do */}
+                        <Droppable droppableId="todo">
+                            {(provided) => (
+                                <div 
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="font-bold text-white">To Do</h3>
+                                        <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksTodo.length}</span>
+                                    </div>
+                                    <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                                        {tasksTodo.map((task: any, index: number) => (
+                                            <Draggable key={task.id.toString()} draggableId={`task-${task.id}`} index={index}>
+                                                {(provided) => (
+                                                    <div 
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="bg-card border border-border p-3 rounded-xl group relative active:rotate-2 active:scale-105 transition-transform"
+                                                    >
+                                                        {task.image_path && (
+                                                            <img src={`/storage/${task.image_path}`} alt="Task cover" className="w-full h-32 object-cover rounded-lg mb-3" />
+                                                        )}
+                                                        <p className="text-sm text-foreground font-medium">{task.title}</p>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                        <button onClick={() => setCreateTaskOpen(true)} className="w-full text-text-muted hover:text-white text-sm font-medium py-2 rounded-lg hover:bg-[#2A2A2A] transition-colors flex items-center justify-center gap-1 mt-2">
+                                            <FiPlus /> Tambah kartu
+                                        </button>
                                     </div>
                                 </div>
-                            ))}
-                            <button onClick={() => setCreateTaskOpen(true)} className="w-full text-text-muted hover:text-white text-sm font-medium py-2 rounded-lg hover:bg-[#2A2A2A] transition-colors flex items-center justify-center gap-1 mt-2">
-                                <FiPlus /> Tambah kartu
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Doing */}
-                    <div className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-white">Doing</h3>
-                            <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksDoing.length}</span>
-                        </div>
-                        <div className="space-y-3 overflow-y-auto pr-1">
-                            {tasksDoing.map((task: any) => (
-                                <div key={task.id} className="bg-card border border-border p-3 rounded-xl border-l-4 border-l-warning group">
-                                    <p className="text-sm text-foreground font-medium mb-3">{task.title}</p>
-                                    <div className="flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity mt-2">
-                                        <button onClick={() => updateTaskStatus(task.id, 'todo')} className="text-[11px] bg-surface text-text-muted px-2 py-1 rounded hover:bg-card transition-colors">← To Do</button>
-                                        <button onClick={() => updateTaskStatus(task.id, 'done')} className="text-[11px] bg-success/10 text-success px-2 py-1 rounded hover:bg-success/20 transition-colors">→ Done</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Done */}
-                    <div className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-white">Done</h3>
-                            <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksDone.length}</span>
-                        </div>
-                        <div className="space-y-3 overflow-y-auto pr-1">
-                            {tasksDone.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-8 text-text-muted">
-                                    <p className="text-sm font-medium">Belum ada tugas selesai</p>
-                                </div>
-                            ) : (
-                                tasksDone.map((task: any) => (
-                                    <div key={task.id} className="bg-card border border-border p-3 rounded-xl border-l-4 border-l-success group opacity-70 hover:opacity-100 transition-opacity">
-                                        <p className="text-sm text-foreground font-medium line-through mb-3">{task.title}</p>
-                                        <div className="flex justify-start opacity-0 group-hover:opacity-100 transition-opacity mt-2">
-                                            <button onClick={() => updateTaskStatus(task.id, 'doing')} className="text-[11px] bg-warning/10 text-warning px-2 py-1 rounded hover:bg-warning/20 transition-colors">← Doing</button>
-                                        </div>
-                                    </div>
-                                ))
                             )}
-                        </div>
+                        </Droppable>
+
+                        {/* Doing */}
+                        <Droppable droppableId="doing">
+                            {(provided) => (
+                                <div 
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="font-bold text-white">Doing</h3>
+                                        <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksDoing.length}</span>
+                                    </div>
+                                    <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                                        {tasksDoing.map((task: any, index: number) => (
+                                            <Draggable key={task.id.toString()} draggableId={`task-${task.id}`} index={index}>
+                                                {(provided) => (
+                                                    <div 
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="bg-card border border-border p-3 rounded-xl border-l-4 border-l-warning group relative active:rotate-2 active:scale-105 transition-transform"
+                                                    >
+                                                        {task.image_path && (
+                                                            <img src={`/storage/${task.image_path}`} alt="Task cover" className="w-full h-32 object-cover rounded-lg mb-3" />
+                                                        )}
+                                                        <p className="text-sm text-foreground font-medium">{task.title}</p>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                        {provided.placeholder}
+                                    </div>
+                                </div>
+                            )}
+                        </Droppable>
+
+                        {/* Done */}
+                        <Droppable droppableId="done">
+                            {(provided) => (
+                                <div 
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-2xl p-4 w-80 flex-shrink-0 flex flex-col h-max max-h-full"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="font-bold text-white">Done</h3>
+                                        <span className="bg-card text-text-muted text-xs font-bold px-2 py-1 rounded-md">{tasksDone.length}</span>
+                                    </div>
+                                    <div className="space-y-3 overflow-y-auto pr-1 flex-1">
+                                        {tasksDone.length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center py-8 text-text-muted">
+                                                <p className="text-sm font-medium">Belum ada tugas selesai</p>
+                                            </div>
+                                        ) : (
+                                            tasksDone.map((task: any, index: number) => (
+                                                <Draggable key={task.id.toString()} draggableId={`task-${task.id}`} index={index}>
+                                                    {(provided) => (
+                                                        <div 
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            className="bg-card border border-border p-3 rounded-xl border-l-4 border-l-success opacity-70 group relative active:rotate-2 active:scale-105 transition-transform"
+                                                        >
+                                                            {task.image_path && (
+                                                                <img src={`/storage/${task.image_path}`} alt="Task cover" className="w-full h-32 object-cover rounded-lg mb-3 opacity-80" />
+                                                            )}
+                                                            <p className="text-sm text-foreground font-medium line-through">{task.title}</p>
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))
+                                        )}
+                                        {provided.placeholder}
+                                    </div>
+                                </div>
+                            )}
+                        </Droppable>
                     </div>
-                </div>
+                </DragDropContext>
             </div>
 
             {/* Create Task Modal */}
@@ -178,12 +273,42 @@ export default function CollaborationShow({ workspace }: any) {
                                 <Input
                                     value={taskForm.data.title}
                                     onChange={e => taskForm.setData('title', e.target.value)}
-                                    className="bg-card border-border text-white"
+                                    className="bg-card border-border text-white mb-4"
                                     placeholder="Apa yang perlu dikerjakan?"
                                     autoFocus
                                     required
                                 />
-                                {taskForm.errors.title && <p className="text-danger text-xs mt-1">{taskForm.errors.title}</p>}
+                                {taskForm.errors.title && <p className="text-danger text-xs mt-1 mb-4">{taskForm.errors.title}</p>}
+                                
+                                <div className="border border-dashed border-border rounded-xl p-4 text-center">
+                                    {imagePreview ? (
+                                        <div className="relative inline-block">
+                                            <img src={imagePreview} className="max-h-32 rounded-lg" alt="Preview" />
+                                            <button 
+                                                type="button" 
+                                                onClick={() => {
+                                                    setImagePreview(null);
+                                                    taskForm.setData('image', null);
+                                                }}
+                                                className="absolute -top-2 -right-2 bg-danger text-white rounded-full p-1"
+                                            >
+                                                <FiX size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer flex flex-col items-center justify-center text-text-muted hover:text-white transition-colors">
+                                            <FiImage size={24} className="mb-2" />
+                                            <span className="text-sm font-medium">Klik untuk tambah gambar (opsional)</span>
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="hidden" 
+                                                onChange={handleImageChange}
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                                {taskForm.errors.image && <p className="text-danger text-xs mt-1">{taskForm.errors.image}</p>}
                             </div>
                             <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-border">
                                 <Button type="button" variant="ghost" onClick={() => setCreateTaskOpen(false)} className="text-text-muted hover:text-white">Batal</Button>

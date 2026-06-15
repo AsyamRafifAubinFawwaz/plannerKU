@@ -12,12 +12,7 @@ export default function Welcome() {
             {/* Navbar */}
             <nav className="border-b border-border bg-surface/50 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-lg border-b-2 border-[#C4500D]">
-                            P
-                        </div>
-                        <span className="font-bold text-lg text-text">PlannerKu</span>
-                    </div>
+                        <img src="/image/logo-light.svg" alt="PlannerKu" className="h-8 w-auto object-contain" />
 
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
                         <a href="#fitur" className="hover:text-primary transition-colors">Fitur</a>
@@ -278,12 +273,7 @@ export default function Welcome() {
             {/* Footer */}
             <footer className="border-t border-border bg-surface py-12">
                 <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-primary text-white flex items-center justify-center font-bold text-xs border-b-2 border-[#C4500D]">
-                            P
-                        </div>
-                        <span className="font-bold text-text">PlannerKu</span>
-                    </div>
+                        <img src="/image/logo-light.svg" alt="PlannerKu" className="h-6 w-auto object-contain" />
                     <div className="text-text-muted text-sm font-medium">
                         © {new Date().getFullYear()} PlannerKu. Dibuat dengan ❤️ di Indonesia.
                     </div>

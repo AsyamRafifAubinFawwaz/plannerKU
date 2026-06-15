@@ -1,16 +1,21 @@
-import AppLogoIcon from '@/components/app-logo-icon';
+import { Link } from '@inertiajs/react';
 
 export default function AppLogo() {
     return (
-        <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
-            </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
-                    PlannerKu
-                </span>
-            </div>
-        </>
+        <div className="flex items-center justify-center w-full">
+            {/* Logo untuk Sidebar Expanded */}
+            <img 
+                src="/image/logo-light.svg" 
+                alt="PlannerKu" 
+                className="h-10 w-auto object-contain group-data-[collapsible=icon]:hidden" 
+            />
+            
+            {/* Logo untuk Sidebar Collapsed */}
+            <img 
+                src="/image/logo.svg" 
+                alt="PlannerKu" 
+                className="h-10 w-auto object-contain hidden group-data-[collapsible=icon]:block" 
+            />
+        </div>
     );
 }

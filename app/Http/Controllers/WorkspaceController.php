@@ -13,19 +13,13 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
 
-        // Fitur khusus paket Max
-        if (!$user->isMax()) {
-            return Inertia::render('collaboration/index', [
-                'workspaces' => [],
-            ]);
-        }
-
         // Ambil workspace yang dimiliki atau diikuti
         $workspaces = $user->ownedWorkspaces()
             ->withCount('members', 'tasks')
             ->get()
             ->concat($user->workspaces()->withCount('members', 'tasks')->get())
-            ->unique('id');
+            ->unique('id')
+            ->values();
 
         return Inertia::render('collaboration/index', [
             'workspaces' => $workspaces,
@@ -53,7 +47,6 @@ class WorkspaceController extends Controller
     public function show(Request $request, Workspace $workspace)
     {
         $user = $request->user();
-        abort_if(!$user->isMax(), 403, 'Khusus paket Max');
 
         // Pastikan user adalah member atau owner
         abort_if(!$workspace->members->contains($user) && $workspace->owner_id !== $user->id, 403);

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkspaceTask extends Model
 {
-    protected $fillable = ['workspace_id', 'title', 'status', 'assigned_to', 'due_date'];
+    protected $fillable = ['workspace_id', 'title', 'status', 'assigned_to', 'due_date', 'image_path'];
 
     public function workspace()
     {

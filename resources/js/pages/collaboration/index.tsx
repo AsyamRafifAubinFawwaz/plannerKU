@@ -16,11 +16,13 @@ export default function CollaborationIndex() {
         description: '',
     });
 
-    useEffect(() => {
+    const handleCreateClick = () => {
         if (!isMax) {
             setUpgradeModalOpen(true);
+        } else {
+            setCreateModalOpen(true);
         }
-    }, [isMax]);
+    };
 
     const submitCreate = (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,7 +38,7 @@ export default function CollaborationIndex() {
         <>
             <Head title="Kolaborasi Tim" />
 
-            <div className={`p-8 w-full max-w-6xl mx-auto h-full flex flex-col ${!isMax ? 'opacity-50 pointer-events-none blur-sm' : ''}`}>
+            <div className="p-8 w-full max-w-6xl mx-auto h-full flex flex-col">
                 {/* Header Utama */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
@@ -46,7 +48,7 @@ export default function CollaborationIndex() {
                         <p className="text-text-muted text-sm">Kelola proyek bersama tim layaknya menggunakan Trello.</p>
                     </div>
                     <button 
-                        onClick={() => setCreateModalOpen(true)}
+                        onClick={handleCreateClick}
                         className="bg-primary border-b-4 border-b-[#C4500D] text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all active:translate-y-[2px] active:border-b-[1px]"
                     >
                         <FiPlus /> Buat Ruang Kerja
@@ -60,7 +62,7 @@ export default function CollaborationIndex() {
                         <h3 className="text-lg font-bold text-white mb-2">Belum ada ruang kerja</h3>
                         <p className="text-text-muted text-sm mb-6">Mulai berkolaborasi dengan membuat ruang kerja pertamamu.</p>
                         <Button 
-                            onClick={() => setCreateModalOpen(true)}
+                            onClick={handleCreateClick}
                             className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white rounded-lg"
                         >
                             <FiPlus className="mr-2" /> Buat Ruang Kerja
