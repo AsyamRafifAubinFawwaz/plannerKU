@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\InvitationReceived;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Models\WorkspaceInvitation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +15,6 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
 
-        // Ambil workspace yang dimiliki atau diikuti
         $workspaces = $user->ownedWorkspaces()
             ->withCount('members', 'tasks')
             ->get()
@@ -37,8 +38,6 @@ class WorkspaceController extends Controller
         ]);
 
         $workspace = $user->ownedWorkspaces()->create($validated);
-        
-        // Owner otomatis jadi admin
         $workspace->members()->attach($user->id, ['role' => 'admin']);
 
         return back()->with('success', 'Ruang kerja berhasil dibuat.');
@@ -47,11 +46,9 @@ class WorkspaceController extends Controller
     public function show(Request $request, Workspace $workspace)
     {
         $user = $request->user();
-
-        // Pastikan user adalah member atau owner
         abort_if(!$workspace->members->contains($user) && $workspace->owner_id !== $user->id, 403);
 
-        $workspace->load(['members', 'tasks.assignee']);
+        $workspace->load(['members', 'columns.tasks.members', 'columns.tasks.checklists']);
 
         return Inertia::render('collaboration/show', [
             'workspace' => $workspace,
@@ -72,8 +69,51 @@ class WorkspaceController extends Controller
 
         abort_if($workspace->members->contains($member), 422, 'Pengguna sudah menjadi anggota.');
 
-        $workspace->members()->attach($member->id, ['role' => 'member']);
+        // Cek apakah sudah ada undangan pending
+        $existingInvite = WorkspaceInvitation::where('workspace_id', $workspace->id)
+            ->where('user_id', $member->id)
+            ->where('status', 'pending')
+            ->first();
 
-        return back()->with('success', 'Anggota berhasil ditambahkan.');
+        abort_if($existingInvite, 422, 'Pengguna sudah memiliki undangan yang menunggu.');
+
+        // Buat undangan, jangan langsung attach
+        $invitation = WorkspaceInvitation::create([
+            'workspace_id' => $workspace->id,
+            'invited_by'   => $user->id,
+            'user_id'      => $member->id,
+            'status'       => 'pending',
+        ]);
+
+        // Muat relasi untuk dikirim via broadcast
+        $invitation->load(['workspace', 'invitedBy']);
+
+        // Kirim notifikasi real-time ke user yang diundang
+        broadcast(new InvitationReceived($invitation, $member->id));
+
+        return back()->with('success', 'Undangan berhasil dikirim ke ' . $member->name . '.');
+    }
+
+    public function acceptInvitation(Request $request, WorkspaceInvitation $invitation)
+    {
+        abort_if($invitation->user_id !== $request->user()->id, 403);
+        abort_if($invitation->status !== 'pending', 422, 'Undangan sudah tidak valid.');
+
+        $invitation->update(['status' => 'accepted']);
+        $invitation->workspace->members()->syncWithoutDetaching([
+            $invitation->user_id => ['role' => 'member']
+        ]);
+
+        return redirect('/collaboration/' . $invitation->workspace_id)
+            ->with('success', 'Kamu berhasil bergabung ke ' . $invitation->workspace->name . '!');
+    }
+
+    public function declineInvitation(Request $request, WorkspaceInvitation $invitation)
+    {
+        abort_if($invitation->user_id !== $request->user()->id, 403);
+
+        $invitation->update(['status' => 'declined']);
+
+        return back()->with('success', 'Undangan telah ditolak.');
     }
 }

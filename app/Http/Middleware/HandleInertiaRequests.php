@@ -51,9 +51,16 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
-                'error' => fn () => $request->session()->get('error'),
+                'error'   => fn () => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            // Undangan pending untuk notifikasi bell 🔔
+            'pendingInvitations' => fn () => $request->user()
+                ? \App\Models\WorkspaceInvitation::where('user_id', $request->user()->id)
+                    ->where('status', 'pending')
+                    ->with(['workspace', 'invitedBy'])
+                    ->get()
+                : [],
         ];
     }
 }

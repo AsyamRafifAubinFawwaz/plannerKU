@@ -18,6 +18,11 @@ class Workspace extends Model
         return $this->belongsToMany(User::class, 'workspace_user')->withPivot('role')->withTimestamps();
     }
 
+    public function columns()
+    {
+        return $this->hasMany(WorkspaceColumn::class)->orderBy('order');
+    }
+
     public function tasks()
     {
         return $this->hasMany(WorkspaceTask::class);
