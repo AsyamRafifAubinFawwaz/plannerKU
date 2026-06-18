@@ -14,33 +14,46 @@ interface Habit {
 
 interface Props {
     habit: Habit;
+    last7Days: string[];
     onEdit: (habit: Habit) => void;
     onDelete: (habit: Habit) => void;
+    onToggle?: (habitId: number, date: string) => void;
 }
 
-const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split('T')[0];
-});
+export function HabitRow({ habit, last7Days, onEdit, onDelete, onToggle }: Props) {
+    const todayStr = (() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    })();
+    const doneToday = habit.logs.some(l => l.logged_date.split('T')[0] === todayStr);
 
-export function HabitRow({ habit, onEdit, onDelete }: Props) {
     const isDone = (date: string) =>
         habit.logs.some((log) => log.logged_date.split('T')[0] === date);
 
     function toggle(date: string) {
-        router.post(`/habits/${habit.id}/toggle`, { date }, {
-            preserveScroll: true,
-        });
+        if (onToggle) {
+            onToggle(habit.id, date);
+        } else {
+            router.post(`/habits/${habit.id}/toggle`, { date }, {
+                preserveScroll: true,
+            });
+        }
     }
 
     return (
-        <div className="flex items-center justify-between rounded-2xl bg-[#141414] border-2 border-[#2A2A2A] border-b-4 px-5 py-4 transition-transform hover:-translate-y-[2px] hover:border-[#444] active:translate-y-0 active:border-b-2">
-            {/* Nama + Icon */}
+        <div className="flex items-center justify-between">
+            {/* Nama + Icon + Streak */}
             <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-bold text-foreground">
-                    {habit.name} {habit.icon && <span>{habit.icon}</span>}
-                </p>
+                <div className="flex items-center gap-2">
+                    <p className={`text-[15px] font-bold transition-all duration-200 ${doneToday ? 'line-through text-text-muted' : 'text-foreground'}`}>
+                        {habit.name} {habit.icon && <span>{habit.icon}</span>}
+                    </p>
+                    {habit.current_streak > 0 && (
+                        <span className="text-[11px] text-primary font-bold flex items-center gap-0.5">
+                            🔥 {habit.current_streak}
+                        </span>
+                    )}
+                </div>
             </div>
 
             <div className="flex items-center gap-6">

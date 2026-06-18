@@ -9,7 +9,9 @@ class HabitLog extends Model
    protected $fillable = [
     'habit_id',
     'user_id',
-    'logged_date'
+    'logged_date',
+    'photo_path',
+    'caption',
    ];
 
    public function habit(){

@@ -30,7 +30,12 @@ class WorkspaceController extends Controller
     public function store(Request $request)
     {
         $user = $request->user();
-        abort_if(!$user->isMax(), 403, 'Khusus paket Max');
+
+        // Gratis: tidak boleh sama sekali
+        abort_if($user->isFree(), 403, 'Fitur kolaborasi tersedia mulai paket Pro.');
+
+        // Pro & Max: cek limit workspace yang dimiliki
+        abort_if(!$user->canCreateWorkspace(), 403, 'Paket Pro hanya dapat memiliki 1 ruang kerja. Upgrade ke Max untuk ruang kerja tak terbatas.');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -58,7 +63,9 @@ class WorkspaceController extends Controller
     public function addMember(Request $request, Workspace $workspace)
     {
         $user = $request->user();
-        abort_if(!$user->isMax(), 403);
+
+        // Hanya Max yang bisa mengundang
+        abort_if(!$user->canInviteMember(), 403, 'Mengundang anggota hanya tersedia di paket Max.');
         abort_if($workspace->owner_id !== $user->id, 403, 'Hanya pembuat ruang kerja yang dapat mengundang anggota.');
 
         $request->validate([
@@ -69,7 +76,6 @@ class WorkspaceController extends Controller
 
         abort_if($workspace->members->contains($member), 422, 'Pengguna sudah menjadi anggota.');
 
-        // Cek apakah sudah ada undangan pending
         $existingInvite = WorkspaceInvitation::where('workspace_id', $workspace->id)
             ->where('user_id', $member->id)
             ->where('status', 'pending')
@@ -77,7 +83,6 @@ class WorkspaceController extends Controller
 
         abort_if($existingInvite, 422, 'Pengguna sudah memiliki undangan yang menunggu.');
 
-        // Buat undangan, jangan langsung attach
         $invitation = WorkspaceInvitation::create([
             'workspace_id' => $workspace->id,
             'invited_by'   => $user->id,
@@ -85,10 +90,8 @@ class WorkspaceController extends Controller
             'status'       => 'pending',
         ]);
 
-        // Muat relasi untuk dikirim via broadcast
         $invitation->load(['workspace', 'invitedBy']);
 
-        // Kirim notifikasi real-time ke user yang diundang
         broadcast(new InvitationReceived($invitation, $member->id));
 
         return back()->with('success', 'Undangan berhasil dikirim ke ' . $member->name . '.');

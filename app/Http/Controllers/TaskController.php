@@ -16,8 +16,8 @@ class TaskController extends Controller
     public function index(): Response
     {
         $tasks = auth()->user()->tasks()
-            ->orderBy('is_done')
-            ->orderBy('due_date')
+            ->orderBy('sort_order')
+            ->orderBy('id')
             ->get();
 
         return Inertia::render('tasks/index', [
@@ -38,6 +38,12 @@ class TaskController extends Controller
             );
         }
         auth()->user()->tasks()->create($data);
+
+        // Assign sort_order = max + 1 agar task baru selalu di bawah
+        $task = auth()->user()->tasks()->latest('id')->first();
+        $maxOrder = auth()->user()->tasks()->max('sort_order') ?? 0;
+        $task->update(['sort_order' => $maxOrder + 1]);
+
         return back()->with('success', 'Tugas berhasil ditambahkan!');
     }
 
@@ -68,5 +74,25 @@ class TaskController extends Controller
         $task->delete();
 
         return back()->with('success', 'Tugas berhasil dihapus!');
+    }
+
+    /** Simpan urutan baru setelah drag-and-drop */
+    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
+
+        $user = auth()->user();
+        $tasks = $user->tasks()->whereIn('id', $request->ids)->orderBy('sort_order')->get();
+        if ($tasks->isEmpty()) return response()->json(['ok' => true]);
+
+        // Ambil sort_order yang sudah ada dan urutkan
+        $sortOrders = $tasks->pluck('sort_order')->sort()->values();
+
+        // Assign kembali sort_order secara berurutan sesuai request ID
+        foreach ($request->ids as $index => $id) {
+            $user->tasks()->where('id', $id)->update(['sort_order' => $sortOrders[$index]]);
+        }
+
+        return response()->json(['ok' => true]);
     }
 }

@@ -26,6 +26,13 @@ class WorkspaceTaskController extends Controller
 
         $order = $workspace->tasks()->where('column_id', $validated['column_id'])->max('order') ?? 0;
 
+        // Cek batas kartu per kolom berdasarkan plan pemilik workspace
+        $owner = $workspace->owner;
+        $taskCount = $workspace->tasks()->where('column_id', $validated['column_id'])->count();
+        if ($taskCount >= $owner->maxTasksPerColumn()) {
+            return back()->withErrors(['title' => 'Paket Pro hanya mendukung 10 kartu per kolom. Upgrade ke Max untuk kartu tak terbatas.']);
+        }
+
         $workspace->tasks()->create([
             'column_id' => $validated['column_id'],
             'title' => $validated['title'],

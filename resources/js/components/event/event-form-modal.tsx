@@ -25,15 +25,16 @@ interface Props {
     open: boolean;
     onClose: () => void;
     event?: Event;
+    prefillDate?: string; // ISO date string untuk pre-fill saat klik kotak kalender
 }
 
-export function EventFormModal({ open, onClose, event }: Props) {
+export function EventFormModal({ open, onClose, event, prefillDate }: Props) {
     const isEdit = !!event;
 
     const form = useForm({
         title: event?.title ?? '',
-        start_date: event?.start_date?.split('T')[0] ?? '',
-        end_date: event?.end_date?.split('T')[0] ?? '',
+        start_date: event?.start_date?.split('T')[0] ?? prefillDate ?? '',
+        end_date: event?.end_date?.split('T')[0] ?? prefillDate ?? '',
         color: event?.color ?? '#FF6B1A',
         notes: event?.notes ?? '',
     });
@@ -42,8 +43,8 @@ export function EventFormModal({ open, onClose, event }: Props) {
         if (open) {
             form.setData({
                 title: event?.title ?? '',
-                start_date: event?.start_date?.split('T')[0] ?? '',
-                end_date: event?.end_date?.split('T')[0] ?? '',
+                start_date: event?.start_date?.split('T')[0] ?? prefillDate ?? '',
+                end_date: event?.end_date?.split('T')[0] ?? prefillDate ?? '',
                 color: event?.color ?? '#FF6B1A',
                 notes: event?.notes ?? '',
             });

@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/tasks/export', [TaskExportController::class, 'downloadPdf'])->name('tasks.export');
+    Route::post('/tasks/reorder', [TaskController::class, 'reorder'])->name('tasks.reorder');
     Route::resource('tasks', TaskController::class)
         ->only(['index', 'store', 'update', 'destroy'])
         ->names('tasks');
@@ -28,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('habits/{habit}/toggle', [HabitLogsController::class, 'toggle'])
         ->name('habit-logs.toggle');
+
+    Route::post('habits/{habit}/proof', [HabitLogsController::class, 'uploadProof'])
+        ->name('habit-logs.proof');
 
     Route::resource('events', EventController::class)
         ->only(['index', 'store', 'update', 'destroy'])

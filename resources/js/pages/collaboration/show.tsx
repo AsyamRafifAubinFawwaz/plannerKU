@@ -7,6 +7,16 @@ import { Link } from '@inertiajs/react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import TrelloTaskModal from '@/components/task/trello-task-modal';
 
+// Peta warna label — harus sinkron dengan LABEL_COLORS di trello-task-modal.tsx
+const CARD_LABEL_COLORS: Record<string, string> = {
+    green:  '#1D9E75',
+    yellow: '#EF9F27',
+    orange: '#FF6B1A',
+    red:    '#E24B4A',
+    purple: '#8B5CF6',
+    blue:   '#378ADD',
+};
+
 export default function CollaborationShow({ workspace }: any) {
     const { auth } = usePage().props as any;
     const [createTaskOpen, setCreateTaskOpen] = useState(false);
@@ -209,13 +219,24 @@ export default function CollaborationShow({ workspace }: any) {
                                 </div>
                             )}
                         </div>
-                        {workspace.owner_id === auth.user.id && (
-                            <button 
+                        {/* Hanya Max yang bisa undang anggota */}
+                        {workspace.owner_id === auth.user.id && auth.limits?.canInviteMember && (
+                            <button
                                 onClick={() => setInviteMemberOpen(true)}
                                 className="bg-surface border border-border border-b-4 border-b-[#0A0A0A] text-text-muted hover:text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all active:translate-y-[2px] active:border-b-[1px]"
                             >
                                 <FiUserPlus /> Undang
                             </button>
+                        )}
+                        {/* Pro: tampilkan info batas tapi tidak bisa undang */}
+                        {workspace.owner_id === auth.user.id && !auth.limits?.canInviteMember && auth.user.isPro && (
+                            <Link
+                                href="/pricing"
+                                className="bg-warning/10 border border-warning/30 text-warning px-3 py-1.5 rounded-lg font-semibold flex items-center gap-2 text-xs transition-all hover:bg-warning/20"
+                                title="Upgrade ke Max untuk mengundang anggota"
+                            >
+                                <FiUserPlus /> Upgrade untuk Undang
+                            </Link>
                         )}
                     </div>
                 </div>
@@ -271,6 +292,25 @@ export default function CollaborationShow({ workspace }: any) {
                                                                     {task.cover_image && (
                                                                         <img src={`/storage/${task.cover_image}`} alt="Task cover" className="w-full h-32 object-cover rounded-lg mb-3" />
                                                                     )}
+
+                                                                    {/* Label badges — bar warna di atas judul seperti Trello */}
+                                                                    {task.labels && task.labels.length > 0 && (
+                                                                        <div className="flex flex-wrap gap-1 mb-2">
+                                                                            {task.labels.map((labelId: string) => {
+                                                                                const labelDef = CARD_LABEL_COLORS[labelId];
+                                                                                if (!labelDef) return null;
+                                                                                return (
+                                                                                    <div
+                                                                                        key={labelId}
+                                                                                        className="h-2 w-10 rounded-full"
+                                                                                        style={{ backgroundColor: labelDef }}
+                                                                                        title={labelId}
+                                                                                    />
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+
                                                                     <p className="text-sm text-foreground font-medium">{task.title}</p>
                                                                     
                                                                     {/* Trello features tags / members */}

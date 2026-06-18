@@ -44,9 +44,13 @@ class HandleInertiaRequests extends Middleware
                     'isMax' => $request->user()->isMax(),
                 ]) : null,
                 'limits' => $request->user() ? [
-                    'canAddTask' => $request->user()->canAddTask(),
-                    'canAddHabit' => $request->user()->canAddHabit(),
-                    'canAddEvent' => $request->user()->canAddEvent(),
+                    'canAddTask'              => $request->user()->canAddTask(),
+                    'canAddHabit'             => $request->user()->canAddHabit(),
+                    'canAddEvent'             => $request->user()->canAddEvent(),
+                    'canCreateWorkspace'      => $request->user()->canCreateWorkspace(),
+                    'canInviteMember'         => $request->user()->canInviteMember(),
+                    'maxColumnsPerWorkspace'  => $request->user()->maxColumnsPerWorkspace(),
+                    'maxTasksPerColumn'       => $request->user()->maxTasksPerColumn(),
                 ] : null,
             ],
             'flash' => [
@@ -54,7 +58,6 @@ class HandleInertiaRequests extends Middleware
                 'error'   => fn () => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            // Undangan pending untuk notifikasi bell 🔔
             'pendingInvitations' => fn () => $request->user()
                 ? \App\Models\WorkspaceInvitation::where('user_id', $request->user()->id)
                     ->where('status', 'pending')

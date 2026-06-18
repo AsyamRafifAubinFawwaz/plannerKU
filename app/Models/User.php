@@ -126,4 +126,36 @@ class User extends Authenticatable implements PasskeyUser
 
         return $this->events()->count() < 10;
     }
+
+    // ─────────────────────────────────────────
+    // Limit Kolaborasi
+    // ─────────────────────────────────────────
+
+    /** Gratis: tidak bisa. Pro: bisa 1 workspace. Max: tak terbatas. */
+    public function canCreateWorkspace(): bool
+    {
+        if ($this->isFree()) return false;
+        if ($this->isMax()) return true;
+
+        // Pro: maksimal 1 workspace yang dimiliki
+        return $this->ownedWorkspaces()->count() < 1;
+    }
+
+    /** Hanya Max yang bisa mengundang anggota */
+    public function canInviteMember(): bool
+    {
+        return $this->isMax();
+    }
+
+    /** Batas kolom per workspace: Pro = 3, Max = tak terbatas */
+    public function maxColumnsPerWorkspace(): int
+    {
+        return $this->isMax() ? PHP_INT_MAX : 3;
+    }
+
+    /** Batas kartu per kolom: Pro = 10, Max = tak terbatas */
+    public function maxTasksPerColumn(): int
+    {
+        return $this->isMax() ? PHP_INT_MAX : 10;
+    }
 }

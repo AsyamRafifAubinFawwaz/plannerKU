@@ -3,7 +3,7 @@ import { EventFormModal } from '@/components/event/event-form-modal';
 import { Button } from '@/components/ui/button';
 import { UpgradeModal } from '@/components/shared/upgrade-modal';
 import { Head, router, usePage } from '@inertiajs/react';
-import { FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiPlus } from 'react-icons/fi';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -21,7 +21,7 @@ interface Props {
     events: Event[];
 }
 
-const DAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+const DAYS   = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 const MONTHS = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
@@ -29,182 +29,202 @@ const MONTHS = [
 
 export default function CalendarIndex({ events }: Props) {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [formOpen, setFormOpen] = useState(false);
-    const [eventToEdit, setEventToEdit] = useState<Event | null>(null);
+    const [formOpen, setFormOpen]         = useState(false);
+    const [eventToEdit, setEventToEdit]   = useState<Event | null>(null);
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-    const [deleting, setDeleting] = useState(false);
+    const [deleting, setDeleting]         = useState(false);
     const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+    // Pre-fill tanggal saat klik kotak kosong
+    const [prefillDate, setPrefillDate]   = useState<string | undefined>(undefined);
 
     const { auth } = usePage().props as any;
     const canAddEvent = auth?.limits?.canAddEvent ?? true;
 
-    function openCreate() {
-        if (!canAddEvent) {
-            setUpgradeModalOpen(true);
-            return;
-        }
-        setEventToEdit(null);
-        setFormOpen(true);
-    }
-
-    const year = currentDate.getFullYear();
+    const year  = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    let firstDayOfMonth = new Date(year, month, 1).getDay();
-    firstDayOfMonth = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+    // Hari pertama bulan ini (0=Sun → ubah ke 0=Mon)
+    let firstDay = new Date(year, month, 1).getDay();
+    firstDay = firstDay === 0 ? 6 : firstDay - 1;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // Tampilkan juga hari dari bulan sebelumnya (untuk padding)
+    const prevMonthDays = new Date(year, month, 0).getDate();
 
-    const calendarDays: (number | null)[] = [
-        ...Array(firstDayOfMonth).fill(null),
-        ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-    ];
+    // Selalu 6 baris × 7 kolom = 42 cell agar tinggi konsisten
+    const totalCells = 42;
+    const cells: { day: number; inMonth: boolean }[] = [];
 
-    function prevMonth() {
-        setCurrentDate(new Date(year, month - 1, 1));
+    for (let i = 0; i < firstDay; i++) {
+        cells.push({ day: prevMonthDays - firstDay + 1 + i, inMonth: false });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ day: d, inMonth: true });
+    }
+    while (cells.length < totalCells) {
+        cells.push({ day: cells.length - firstDay - daysInMonth + 1, inMonth: false });
     }
 
-    function nextMonth() {
-        setCurrentDate(new Date(year, month + 1, 1));
-    }
+    function prevMonth() { setCurrentDate(new Date(year, month - 1, 1)); }
+    function nextMonth() { setCurrentDate(new Date(year, month + 1, 1)); }
+
+    function goToday() { setCurrentDate(new Date()); }
 
     function getEventsForDay(day: number): Event[] {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        return events.filter((e) => {
+        return events.filter(e => {
             const start = e.start_date.split('T')[0];
-            const end = e.end_date.split('T')[0];
+            const end   = e.end_date.split('T')[0];
             return start <= dateStr && dateStr <= end;
         });
     }
 
     function isToday(day: number): boolean {
-        const today = new Date();
-        return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+        const t = new Date();
+        return t.getDate() === day && t.getMonth() === month && t.getFullYear() === year;
+    }
+
+    function openCreateForDay(day: number) {
+        if (!canAddEvent) { setUpgradeModalOpen(true); return; }
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        setPrefillDate(dateStr);
+        setEventToEdit(null);
+        setFormOpen(true);
+    }
+
+    function openEditEvent(event: Event) {
+        setEventToEdit(event);
+        setPrefillDate(undefined);
+        setFormOpen(true);
+    }
+
+    function openCreateBlank() {
+        if (!canAddEvent) { setUpgradeModalOpen(true); return; }
+        setPrefillDate(undefined);
+        setEventToEdit(null);
+        setFormOpen(true);
     }
 
     function confirmDelete() {
         if (!eventToDelete) return;
         setDeleting(true);
         router.delete(`/events/${eventToDelete.id}`, {
-            onSuccess: () => {
-                toast.success('Event berhasil dihapus!');
-                setEventToDelete(null);
-            },
+            onSuccess: () => { toast.success('Event berhasil dihapus!'); setEventToDelete(null); },
             onError: () => toast.error('Gagal menghapus event.'),
             onFinish: () => setDeleting(false),
         });
-    }
-
-    const upcomingEvents = events.filter(e => {
-        const end = new Date(e.end_date.split('T')[0]);
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        return end >= today;
-    }).sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-
-    function formatDateList(dateStr: string) {
-        const d = new Date(dateStr.split('T')[0]);
-        const dayName = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][d.getDay()];
-        return `${dayName}, ${d.getDate()} ${MONTHS[d.getMonth()].substring(0, 3)}`;
     }
 
     return (
         <>
             <Head title="Kalender" />
 
-            {/* w-full dan max-w-7xl agar grid bisa melebar maksimal seperti di Figma */}
-            <div className="p-8 w-full max-w-7xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-[22px] font-medium text-foreground">Kalender</h1>
-                    <Button className="bg-[#FF6B1A] hover:bg-[#FF8C42] text-white cursor-pointer rounded-lg px-4" onClick={openCreate}>
-                        + Tambah event
-                    </Button>
-                </div>
+            {/* Satu layar penuh — tidak scroll vertikal */}
+            <div className="flex flex-col h-[calc(100vh-64px)] px-6 py-4 w-full max-w-7xl mx-auto">
 
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="flex items-center gap-1">
-                        <Button variant="outline" size="icon" onClick={prevMonth} className="h-9 w-9 bg-transparent border-[#2A2A2A] text-foreground hover:bg-[#2A2A2A] cursor-pointer">
-                            <FiChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <h2 className="text-xl font-medium text-foreground min-w-[140px] text-center">
-                            {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
-                        </h2>
-                        <Button variant="outline" size="icon" onClick={nextMonth} className="h-9 w-9 bg-transparent border-[#2A2A2A] text-foreground hover:bg-[#2A2A2A] cursor-pointer">
-                            <FiChevronRight className="h-4 w-4" />
-                        </Button>
+                {/* ── Header ── */}
+                <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-xl font-bold text-white">Kalender</h1>
+                        {/* Nav bulan */}
+                        <div className="flex items-center gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-1 py-0.5">
+                            <button onClick={prevMonth} className="p-1.5 rounded hover:bg-[#2A2A2A] text-text-muted hover:text-white transition-colors">
+                                <FiChevronLeft size={16} />
+                            </button>
+                            <span className="text-sm font-semibold text-white px-2 min-w-[130px] text-center">
+                                {MONTHS[month]} {year}
+                            </span>
+                            <button onClick={nextMonth} className="p-1.5 rounded hover:bg-[#2A2A2A] text-text-muted hover:text-white transition-colors">
+                                <FiChevronRight size={16} />
+                            </button>
+                        </div>
+                        <button onClick={goToday} className="text-xs text-primary border border-primary/30 px-3 py-1 rounded-lg hover:bg-primary/10 transition-colors">
+                            Hari Ini
+                        </button>
                     </div>
+                    <button
+                        onClick={openCreateBlank}
+                        className="bg-primary border-b-4 border-b-[#C4500D] text-white px-4 py-1.5 rounded-lg font-semibold flex items-center gap-2 text-sm transition-all active:translate-y-[2px] active:border-b-[1px]"
+                    >
+                        <FiPlus /> Tambah Event
+                    </button>
                 </div>
 
-                <div className="w-full">
-                    <div className="grid grid-cols-7 gap-3 mb-2">
-                        {DAYS.map((d) => (
-                            <div key={d} className="text-[13px] text-muted-foreground font-medium pl-3">
+                {/* ── Grid Kalender ── */}
+                <div className="flex flex-col flex-1 min-h-0">
+                    {/* Header hari */}
+                    <div className="grid grid-cols-7 mb-1 flex-shrink-0">
+                        {DAYS.map(d => (
+                            <div key={d} className="text-center text-[11px] font-bold text-text-muted uppercase tracking-wider py-2">
                                 {d}
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-7 gap-3">
-                        {calendarDays.map((day, idx) => {
-                            const dayEvents = day ? getEventsForDay(day) : [];
-                            const currentDay = day ? isToday(day) : false;
+                    {/* 6 × 7 grid — flex-1 untuk isi sisa tinggi */}
+                    <div className="grid grid-cols-7 grid-rows-6 flex-1 gap-1 min-h-0">
+                        {cells.map((cell, idx) => {
+                            const dayEvents = cell.inMonth ? getEventsForDay(cell.day) : [];
+                            const today     = cell.inMonth && isToday(cell.day);
 
                             return (
                                 <div
                                     key={idx}
-                                    className={`relative min-h-[100px] md:min-h-[120px] rounded-2xl p-3 border-2 transition-transform hover:-translate-y-[2px] active:translate-y-0 flex flex-col group overflow-hidden ${
-                                        !day 
-                                            ? 'bg-transparent border-transparent' 
-                                            : currentDay 
-                                                ? 'bg-[#1A1A1A] border-[#FF6B1A]/50 border-b-4 hover:border-[#FF6B1A]' 
-                                                : 'bg-[#1A1A1A] border-[#2A2A2A] border-b-4 hover:border-[#444]'
-                                    }`}
+                                    onClick={() => cell.inMonth && openCreateForDay(cell.day)}
+                                    className={`relative flex flex-col rounded-xl border overflow-hidden cursor-pointer transition-colors group
+                                        ${!cell.inMonth
+                                            ? 'bg-[#0F0F0F] border-[#1A1A1A]'
+                                            : today
+                                                ? 'bg-[#1A1A1A] border-primary/60 hover:border-primary'
+                                                : 'bg-[#141414] border-[#2A2A2A] hover:border-[#444]'
+                                        }`}
                                 >
-                                    {day && (
-                                        <div className="flex flex-col h-full relative">
-                                            
-                                            {/* Baris Atas: Tanggal (kiri) & Titik Warna (kanan) */}
-                                            <div className="flex justify-between items-start mb-2.5">
-                                                <span className={`text-[16px] font-black leading-none ${currentDay ? 'text-[#FF6B1A]' : 'text-muted-foreground'}`}>
-                                                    {day}
-                                                </span>
-
-                                                {dayEvents.length > 0 && (
-                                                    <div className="flex gap-1 flex-wrap justify-end max-w-[50%]">
-                                                        {dayEvents.map(event => (
-                                                            <div 
-                                                                key={event.id}
-                                                                className="w-2.5 h-2.5 rounded-full"
-                                                                style={{ backgroundColor: event.color ?? '#FF6B1A' }}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Daftar Event di bawah tanggal */}
-                                            <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 pr-1">
-                                                {dayEvents.map(event => (
-                                                    <div 
-                                                        key={event.id}
-                                                        className="flex flex-col cursor-pointer transition-opacity hover:opacity-80 relative pl-2 border-l-[3px]"
-                                                        style={{ borderColor: event.color ?? '#FF6B1A' }}
-                                                        onClick={(e) => { e.stopPropagation(); setEventToEdit(event); setFormOpen(true); }}
-                                                    >
-                                                        <span className={`text-[13px] font-bold truncate leading-tight flex items-center gap-1 ${event.is_done ? 'text-muted-foreground line-through' : 'text-white'}`}>
-                                                            {event.is_done && <span className="text-emerald-500">✓</span>}
-                                                            {event.title}
-                                                        </span>
-                                                        {event.notes && (
-                                                            <span className="text-[11px] font-medium text-muted-foreground truncate leading-tight mt-0.5">
-                                                                {event.notes}
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                    {/* Nomor tanggal */}
+                                    <div className="flex items-center justify-between px-2 pt-1.5 flex-shrink-0">
+                                        <span className={`text-xs font-bold leading-none ${
+                                            !cell.inMonth ? 'text-text-faint' :
+                                            today ? 'text-white bg-primary rounded-full w-5 h-5 flex items-center justify-center text-[10px]' :
+                                            'text-text-muted'
+                                        }`}>
+                                            {cell.day}
+                                        </span>
+                                        {/* Dots event di kanan atas */}
+                                        {dayEvents.length > 0 && (
+                                            <div className="flex gap-0.5 flex-wrap justify-end max-w-[50%]">
+                                                {dayEvents.slice(0, 3).map(e => (
+                                                    <div key={e.id} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.color ?? '#FF6B1A' }} />
                                                 ))}
                                             </div>
+                                        )}
+                                    </div>
 
+                                    {/* Event list */}
+                                    <div className="flex-1 overflow-hidden px-1 pb-1 space-y-0.5 mt-1">
+                                        {dayEvents.slice(0, 3).map(event => (
+                                            <div
+                                                key={event.id}
+                                                onClick={e => { e.stopPropagation(); openEditEvent(event); }}
+                                                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium cursor-pointer hover:opacity-80 transition-opacity truncate"
+                                                style={{
+                                                    borderLeft: `2px solid ${event.color ?? '#FF6B1A'}`,
+                                                    backgroundColor: (event.color ?? '#FF6B1A') + '18',
+                                                    color: event.is_done ? '#555' : '#ccc',
+                                                    textDecoration: event.is_done ? 'line-through' : 'none',
+                                                }}
+                                            >
+                                                {event.is_done && <span style={{ color: '#1D9E75' }}>✓</span>}
+                                                <span className="truncate">{event.title}</span>
+                                            </div>
+                                        ))}
+                                        {dayEvents.length > 3 && (
+                                            <p className="text-[9px] text-text-muted px-1.5">+{dayEvents.length - 3} lagi</p>
+                                        )}
+                                    </div>
+
+                                    {/* Hint tambah saat hover di hari kosong */}
+                                    {cell.inMonth && dayEvents.length === 0 && (
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <FiPlus className="text-text-muted" size={16} />
                                         </div>
                                     )}
                                 </div>
@@ -212,64 +232,26 @@ export default function CalendarIndex({ events }: Props) {
                         })}
                     </div>
                 </div>
-
-                <div className="pt-8">
-                    <h3 className="text-[15px] font-medium text-muted-foreground mb-4">Event mendatang</h3>
-                    <div className="space-y-3">
-                        {upcomingEvents.length === 0 ? (
-                            <p className="text-sm text-muted-foreground bg-[#141414] rounded-xl p-4 border border-[#2A2A2A]">Tidak ada event mendatang.</p>
-                        ) : (
-                            upcomingEvents.map((event) => (
-                                <div key={event.id} className="group flex items-center justify-between rounded-xl bg-[#141414] border border-[#2A2A2A] p-4 transition-colors hover:bg-[#1A1A1A]">
-                                    <div className="flex items-center gap-3">
-                                        <div 
-                                            className="h-2.5 w-2.5 rounded-full" 
-                                            style={{ backgroundColor: event.color ?? '#FF6B1A' }} 
-                                        />
-                                        <span className="text-[14px] font-medium text-foreground">{event.title}</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-[13px] text-muted-foreground">
-                                            {formatDateList(event.start_date)}
-                                        </span>
-                                        
-                                        <div className="hidden group-hover:flex items-center gap-1">
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-muted-foreground hover:text-foreground cursor-pointer" onClick={() => { setEventToEdit(event); setFormOpen(true); }}>
-                                                <FiEdit2 className="h-3.5 w-3.5" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer" onClick={() => setEventToDelete(event)}>
-                                                <FiTrash2 className="h-3.5 w-3.5" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
             </div>
 
             <EventFormModal
                 open={formOpen}
-                onClose={() => { setFormOpen(false); setEventToEdit(null); }}
+                onClose={() => { setFormOpen(false); setEventToEdit(null); setPrefillDate(undefined); }}
                 event={eventToEdit ?? undefined}
+                prefillDate={prefillDate}
             />
 
             <ConfirmDialog
-                open={!!eventToDelete}
-                onClose={() => setEventToDelete(null)}
-                onConfirm={confirmDelete}
+                open={!!eventToDelete} onClose={() => setEventToDelete(null)} onConfirm={confirmDelete}
                 title="Hapus event ini?"
                 description={`"${eventToDelete?.title}" akan dihapus permanen.`}
                 loading={deleting}
             />
 
             <UpgradeModal
-                open={upgradeModalOpen}
-                onClose={() => setUpgradeModalOpen(false)}
+                open={upgradeModalOpen} onClose={() => setUpgradeModalOpen(false)}
                 title="Limit Kalender Tercapai"
-                description="Kamu telah mencapai batas maksimal 10 event di paket Gratis."
+                description="Kamu telah mencapai batas maksimal 10 event di paket Gratis. Upgrade untuk event tak terbatas!"
             />
         </>
     );

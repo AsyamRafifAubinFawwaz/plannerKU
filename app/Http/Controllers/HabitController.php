@@ -13,12 +13,24 @@ class HabitController extends Controller
 {
     public function index(): Response
     {
-        $habits = auth()->user()->habits()
-            ->with(['logs' => fn($q) => $q->orderBy('logged_date', 'desc')->limit(7)])
+        $user = auth()->user();
+
+        $habits = $user->habits()
+            ->with(['logs' => fn($q) => $q->orderBy('logged_date', 'desc')->limit(30)])
             ->get();
 
+        // Kumpulkan semua foto bukti dari semua habit logs user
+        $proofPhotos = \App\Models\HabitLog::where('user_id', $user->id)
+            ->whereNotNull('photo_path')
+            ->with('habit:id,name')
+            ->orderBy('logged_date', 'desc')
+            ->limit(24)
+            ->get(['id', 'habit_id', 'logged_date', 'photo_path', 'caption']);
+
         return Inertia::render('habit/index', [
-            'habits' => $habits
+            'habits'      => $habits,
+            'points'      => $user->points ?? 0,
+            'proofPhotos' => $proofPhotos,
         ]);
     }
 

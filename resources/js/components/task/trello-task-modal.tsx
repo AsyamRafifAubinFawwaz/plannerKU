@@ -121,7 +121,7 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
     };
 
     // ──────────────────────────────────────────────
-    // Label — toggle warna, simpan senyap
+    // Label — toggle warna, simpan via router (agar data refresh)
     // ──────────────────────────────────────────────
     const toggleLabel = (labelId: string) => {
         const currentLabels: string[] = localTask.labels || [];
@@ -129,18 +129,20 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
             ? currentLabels.filter((l: string) => l !== labelId)
             : [...currentLabels, labelId];
 
+        // Optimistic update lokal
         setLocalTask((prev: any) => ({ ...prev, labels: newLabels }));
-        form.setData('labels', newLabels);
-        silentFetch(`/workspace-tasks/${localTask.id}`, 'PUT', {
+
+        // Simpan ke server & refresh Inertia props supaya tidak hilang saat modal dibuka ulang
+        router.put(`/workspace-tasks/${localTask.id}`, {
             description: form.data.description,
             due_date: form.data.due_date,
             labels: newLabels,
             assigned_to: localTask.members?.map((m: any) => m.id) || [],
-        });
+        }, { preserveScroll: true });
     };
 
     // ──────────────────────────────────────────────
-    // Anggota — toggle assign/unassign, senyap
+    // Anggota — toggle assign/unassign, simpan via router
     // ──────────────────────────────────────────────
     const toggleMember = (member: any) => {
         const currentMemberIds: number[] = localTask.members?.map((m: any) => m.id) || [];
@@ -150,13 +152,16 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
             ? localTask.members.filter((m: any) => m.id !== member.id)
             : [...(localTask.members || []), member];
 
+        // Optimistic update lokal
         setLocalTask((prev: any) => ({ ...prev, members: newMembers }));
-        silentFetch(`/workspace-tasks/${localTask.id}`, 'PUT', {
+
+        // Simpan ke server & refresh Inertia props
+        router.put(`/workspace-tasks/${localTask.id}`, {
             description: form.data.description,
             due_date: form.data.due_date,
             labels: localTask.labels || [],
             assigned_to: newMembers.map((m: any) => m.id),
-        });
+        }, { preserveScroll: true });
     };
 
     const activeLabels: string[] = localTask.labels || [];
@@ -342,7 +347,8 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
                                         <FiUsers className="text-text-muted" /> Anggota
                                     </button>
                                     {showMemberPicker && (
-                                        <div className="absolute left-0 top-full mt-1 w-64 bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                                        // Buka ke KIRI sidebar supaya tidak overflow
+                                        <div className="absolute right-full top-0 mr-2 w-56 bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-right-1 duration-150">
                                             <div className="p-3 border-b border-border">
                                                 <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Anggota Workspace</p>
                                             </div>
@@ -377,7 +383,8 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
                                         <FiTag className="text-text-muted" /> Label
                                     </button>
                                     {showLabelPicker && (
-                                        <div className="absolute left-0 top-full mt-1 w-64 bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                                        // Buka ke KIRI sidebar supaya tidak overflow
+                                        <div className="absolute right-full top-0 mr-2 w-52 bg-surface border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-right-1 duration-150">
                                             <div className="p-3 border-b border-border">
                                                 <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Pilih Label</p>
                                             </div>
@@ -388,15 +395,19 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
                                                         <button
                                                             key={label.id}
                                                             onClick={() => toggleLabel(label.id)}
-                                                            className="w-full flex items-center gap-3 p-1.5 rounded-lg hover:bg-card transition-colors"
+                                                            className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-card transition-colors"
                                                         >
                                                             <div
-                                                                className="flex-1 h-8 rounded-md flex items-center px-3"
+                                                                className="flex-1 h-7 rounded flex items-center px-3"
                                                                 style={{ backgroundColor: label.color }}
                                                             >
-                                                                <span className="text-white text-sm font-bold">{label.name}</span>
+                                                                <span className="text-white text-xs font-bold">{label.name}</span>
                                                             </div>
-                                                            {isActive && <FiCheck className="text-white flex-shrink-0" size={16} />}
+                                                            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                                                isActive ? 'bg-white border-white' : 'border-text-muted'
+                                                            }`}>
+                                                                {isActive && <FiCheck className="text-[#141414]" size={11} />}
+                                                            </div>
                                                         </button>
                                                     );
                                                 })}
@@ -405,20 +416,30 @@ export default function TrelloTaskModal({ task, workspace, onClose }: { task: an
                                     )}
                                 </div>
 
-                                {/* ── Tombol Tenggat Waktu ── */}
-                                <div className="relative w-full">
+                                {/* ── Tenggat Waktu — input date visible & styled ── */}
+                                <div>
+                                    <label className="block text-[11px] font-semibold text-text-muted mb-1.5 uppercase tracking-wider">
+                                        <FiClock className="inline mr-1" size={11} /> Tenggat Waktu
+                                    </label>
                                     <input
                                         type="date"
                                         value={form.data.due_date}
                                         onChange={e => {
                                             form.setData('due_date', e.target.value);
-                                            setTimeout(() => updateTaskDetails(), 100);
+                                            setTimeout(() => updateTaskDetails(), 150);
                                         }}
-                                        className="absolute inset-0 opacity-0 cursor-pointer w-full"
+                                        className="w-full bg-card border border-border text-white text-sm font-medium py-1.5 px-3 rounded cursor-pointer hover:border-primary/50 focus:border-primary focus:outline-none transition-colors"
+                                        style={{ colorScheme: 'dark' }}
                                     />
-                                    <button className="w-full bg-card hover:bg-[#2A2A2A] border border-border text-white text-sm font-medium py-1.5 px-3 rounded flex items-center gap-2 transition-colors pointer-events-none">
-                                        <FiClock className="text-text-muted" /> Tenggat Waktu
-                                    </button>
+                                    {form.data.due_date && (
+                                        <button
+                                            type="button"
+                                            onClick={() => { form.setData('due_date', ''); setTimeout(() => updateTaskDetails(), 150); }}
+                                            className="mt-1 text-[11px] text-danger hover:text-red-400 transition-colors"
+                                        >
+                                            Hapus tenggat
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* ── Tombol Lampiran ── */}
