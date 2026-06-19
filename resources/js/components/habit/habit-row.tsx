@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { router } from '@inertiajs/react';
 import { FiEdit2, FiTrash2, FiCheck } from 'react-icons/fi';
-
+import { SiFireship } from "react-icons/si";
 interface Habit {
     id: number;
     name: string;
@@ -49,8 +49,8 @@ export function HabitRow({ habit, last7Days, onEdit, onDelete, onToggle }: Props
                         {habit.name} {habit.icon && <span>{habit.icon}</span>}
                     </p>
                     {habit.current_streak > 0 && (
-                        <span className="text-[11px] text-primary font-bold flex items-center gap-0.5">
-                            🔥 {habit.current_streak}
+                        <span className="text-[11px] text-primary font-bold flex items-center gap-1">
+                            <SiFireship className="mb-1" size={15}/> {habit.current_streak}
                         </span>
                     )}
                 </div>

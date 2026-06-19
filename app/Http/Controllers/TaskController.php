@@ -6,6 +6,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Services\AttachmentService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -39,8 +40,7 @@ class TaskController extends Controller
         }
         auth()->user()->tasks()->create($data);
 
-        // Assign sort_order = max + 1 agar task baru selalu di bawah
-        $task = auth()->user()->tasks()->latest('id')->first();
+        $task     = auth()->user()->tasks()->latest('id')->first();
         $maxOrder = auth()->user()->tasks()->max('sort_order') ?? 0;
         $task->update(['sort_order' => $maxOrder + 1]);
 
@@ -76,19 +76,16 @@ class TaskController extends Controller
         return back()->with('success', 'Tugas berhasil dihapus!');
     }
 
-    /** Simpan urutan baru setelah drag-and-drop */
-    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    public function reorder(Request $request): JsonResponse
     {
         $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
 
-        $user = auth()->user();
+        $user  = auth()->user();
         $tasks = $user->tasks()->whereIn('id', $request->ids)->orderBy('sort_order')->get();
         if ($tasks->isEmpty()) return response()->json(['ok' => true]);
 
-        // Ambil sort_order yang sudah ada dan urutkan
         $sortOrders = $tasks->pluck('sort_order')->sort()->values();
 
-        // Assign kembali sort_order secara berurutan sesuai request ID
         foreach ($request->ids as $index => $id) {
             $user->tasks()->where('id', $id)->update(['sort_order' => $sortOrders[$index]]);
         }

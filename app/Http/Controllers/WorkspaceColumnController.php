@@ -14,7 +14,6 @@ class WorkspaceColumnController extends Controller
         $user = $request->user();
         $request->validate(['name' => 'required|string|max:255']);
 
-        // Cek batas kolom berdasarkan plan pemilik workspace
         $owner = $workspace->owner;
         $columnCount = $workspace->columns()->count();
         if ($columnCount >= $owner->maxColumnsPerWorkspace()) {

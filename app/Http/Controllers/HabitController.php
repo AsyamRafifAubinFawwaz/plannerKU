@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreHabitRequest;
 use App\Http\Requests\UpdateHabitRequest;
 use App\Models\Habit;
+use App\Models\HabitLog;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,8 +20,7 @@ class HabitController extends Controller
             ->with(['logs' => fn($q) => $q->orderBy('logged_date', 'desc')->limit(30)])
             ->get();
 
-        // Kumpulkan semua foto bukti dari semua habit logs user
-        $proofPhotos = \App\Models\HabitLog::where('user_id', $user->id)
+        $proofPhotos = HabitLog::where('user_id', $user->id)
             ->whereNotNull('photo_path')
             ->with('habit:id,name')
             ->orderBy('logged_date', 'desc')
@@ -34,10 +34,7 @@ class HabitController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        // return inertia('habits/create');
-    }
+  
     public function store(StoreHabitRequest $request)
     {
         auth()->user()->habits()->create($request->validated());

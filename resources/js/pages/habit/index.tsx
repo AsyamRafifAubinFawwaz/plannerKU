@@ -9,7 +9,8 @@ import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { FiPlus, FiX, FiCamera, FiZap } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa6';
-
+import { FaCheckCircle } from "react-icons/fa";
+import { FaCameraRetro } from "react-icons/fa";
 interface HabitLog {
     id: number;
     logged_date: string;
@@ -44,7 +45,6 @@ interface Props {
 
 const DAYS_HEADER = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
-// Dapatkan 7 hari terakhir (Senin-Minggu)
 function getLast7Days(): string[] {
     const days: string[] = [];
     for (let i = 6; i >= 0; i--) {
@@ -244,7 +244,7 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                                     {/* Tombol bukti foto — muncul segera setelah dicentang */}
                                     {doneToday && (
                                         <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/50">
-                                            <span className="text-[11px] text-success font-medium">✅ Selesai hari ini</span>
+                                            <span className="text-[11px] text-success font-medium flex items-center gap-2.5"><FaCheckCircle  className='mb-1 text-green-500' size={20}/> Selesai hari ini</span>
                                             {!hasProof ? (
                                                 <button
                                                     onClick={() => openProofModal(habit)}
@@ -269,7 +269,7 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                 {proofPhotos.length > 0 && (
                     <div className="mt-12">
                         <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                            📸 Jejak Keberhasilanmu
+                            <FaCameraRetro className="text-primary" size={20}/> Jejak Keberhasilanmu
                         </h2>
                         <p className="text-text-muted text-sm mb-5">Rekap foto bukti semua habit yang sudah kamu lakukan.</p>
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">

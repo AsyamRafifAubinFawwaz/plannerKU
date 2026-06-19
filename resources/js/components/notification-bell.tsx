@@ -8,19 +8,16 @@ export function NotificationBell() {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
-    // Sync saat ada navigasi Inertia (props berubah)
     useEffect(() => {
         setInvitations(initialInvitations || []);
     }, [initialInvitations]);
 
-    // Listen real-time invitation via Reverb
     useEffect(() => {
         if (!auth?.user?.id || !(window as any).Echo) return;
 
         const channel = (window as any).Echo.private(`user.${auth.user.id}`)
             .listen('InvitationReceived', (e: any) => {
                 setInvitations(prev => [e.invitation, ...prev]);
-                // Buka bell otomatis saat ada undangan baru
                 setOpen(true);
             });
 
@@ -76,7 +73,7 @@ export function NotificationBell() {
             </button>
 
             {open && (
-                <div className="absolute right-0 top-12 w-80 bg-surface border border-border border-b-4 border-b-[#0A0A0A] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-12 w-80 bg-card border border-border border-b-4 border-b-[#0A0A0A] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-4 border-b border-border flex items-center justify-between">
                         <h3 className="font-bold text-white flex items-center gap-2">
                             <FiBell className="text-primary" /> Notifikasi

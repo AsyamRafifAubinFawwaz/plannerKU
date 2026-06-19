@@ -19,7 +19,6 @@ class DashboardController extends Controller
         $endOfWeek = Carbon::now()->endOfWeek();
 
         // 1. Tasks
-        // Ambil tugas yang belum selesai atau selesai hari ini
         $tasks = Task::where('user_id', $user->id)
             ->where(function($query) use ($today) {
                 $query->where('is_done', false)
