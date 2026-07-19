@@ -25,12 +25,12 @@ class HabitStreakService
        $today = Carbon::today();
        $latestLog = $logs->first();
 
-       if($latestLog->diffInDays($today) > 1 ){
+       if(abs($latestLog->diffInDays($today)) > 1 ){
         $currentStreak = 0;
        } else {
         $currentStreak = 1;
         for($i = 0; $i < $logs->count() - 1; $i++){
-            $selisihHari = $logs[$i]->diffInDays($logs[$i+1]);
+            $selisihHari = abs($logs[$i]->diffInDays($logs[$i+1]));
             if($selisihHari  === 1){
                 $currentStreak++;
             }elseif ($selisihHari === 0){

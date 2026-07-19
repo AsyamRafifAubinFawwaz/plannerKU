@@ -221,16 +221,16 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
                 {/* ── Tab Semua / Belum / Sudah ── */}
                 <div className="flex items-center gap-1 mb-5 bg-[#1A1A1A] p-1 rounded-xl w-fit">
                     {([
-                        { key: 'all',  label: 'Semua',          count: localTasks.length,  countColor: 'text-text-muted' },
-                        { key: 'todo', label: 'Belum Selesai',  count: todoCount,           countColor: 'text-primary' },
-                        { key: 'done', label: 'Sudah Selesai',  count: doneCount,           countColor: 'text-success' },
+                        { key: 'all',  label: 'Semua',          count: localTasks.length,  countColor: 'text-text-muted', activeClass: 'bg-[#252525] text-white shadow-sm' },
+                        { key: 'todo', label: 'Belum Selesai',  count: todoCount,           countColor: 'text-[#E24B4A]', activeClass: 'bg-[#E24B4A]/20 text-[#E24B4A] shadow-sm' },
+                        { key: 'done', label: 'Sudah Selesai',  count: doneCount,           countColor: 'text-[#1D9E75]', activeClass: 'bg-[#1D9E75]/20 text-[#1D9E75] shadow-sm' },
                     ] as const).map(tab => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                                 activeTab === tab.key
-                                    ? 'bg-[#252525] text-white shadow-sm'
+                                    ? tab.activeClass
                                     : 'text-text-muted hover:text-white'
                             }`}
                         >
@@ -315,7 +315,7 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
                                                             snapshot.isDragging
                                                                 ? 'shadow-2xl ring-2 ring-primary opacity-95 border-primary'
                                                                 : isDone
-                                                                    ? 'border-success/40 border-b-4 border-b-success/20 bg-success/5'
+                                                                    ? 'border-[#1D9E75]/60 border-b-4 border-b-[#1D9E75]/40 bg-[#1D9E75]/15'
                                                                     : 'bg-[#141414] border-[#2A2A2A] border-b-4 hover:border-[#444]'
                                                         }`}
                                                     >
@@ -328,7 +328,7 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
                                                             <Checkbox
                                                                 checked={isDone}
                                                                 onCheckedChange={() => toggleDone(task)}
-                                                                className={`w-6 h-6 rounded-full border-2 flex-shrink-0 ${isDone ? 'bg-success border-success data-[state=checked]:bg-success data-[state=checked]:border-success' : 'border-muted-foreground/40 hover:border-success'}`}
+                                                                className={`w-6 h-6 rounded-full border-2 flex-shrink-0 ${isDone ? 'bg-[#1D9E75] border-[#1D9E75] data-[state=checked]:bg-[#1D9E75] data-[state=checked]:border-[#1D9E75]' : 'border-muted-foreground/40 hover:border-[#1D9E75]'}`}
                                                             />
                                                             <div className="min-w-0">
                                                                 <p className={`text-[15px] truncate font-bold ${isDone ? 'text-text-muted line-through' : 'text-foreground'}`}>

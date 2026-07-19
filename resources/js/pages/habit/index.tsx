@@ -67,10 +67,12 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
     // Modal upload bukti foto
     const [proofHabit, setProofHabit] = useState<Habit | null>(null);
     const [proofCaption, setProofCaption] = useState('');
+    const [proofDate, setProofDate] = useState<string>('');
     const [proofPreview, setProofPreview] = useState<string | null>(null);
     const [proofFile, setProofFile] = useState<File | null>(null);
     const [uploadingProof, setUploadingProof] = useState(false);
     // Lightbox foto
+    const [galleryHabit, setGalleryHabit] = useState<Habit | null>(null);
     const [lightboxPhoto, setLightboxPhoto] = useState<ProofPhoto | null>(null);
 
     const fileRef = useRef<HTMLInputElement>(null);
@@ -101,18 +103,15 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
         ));
     }, [habits]);
 
-    function handleHabitToggle(habitId: number, date: string) {
-        const isCurrentlyDone = date === todayStr && todayDoneIds.has(habitId);
-        // Optimistic update — tombol langsung muncul/hilang
-        if (date === todayStr) {
-            setTodayDoneIds(prev => {
-                const next = new Set(prev);
-                if (isCurrentlyDone) next.delete(habitId);
-                else next.add(habitId);
-                return next;
-            });
+    function handleCheck(habitId: number, date: string) {
+        const habit = habits.find(h => h.id === habitId);
+        if (habit) openProofModal(habit, date);
+    }
+
+    function handleUncheck(habitId: number, date: string) {
+        if (confirm('Yakin ingin membatalkan habit pada tanggal ini? Foto bukti (jika ada) akan dihapus.')) {
+            router.post(`/habits/${habitId}/toggle`, { date }, { preserveScroll: true });
         }
-        router.post(`/habits/${habitId}/toggle`, { date }, { preserveScroll: true });
     }
 
     function openCreate() {
@@ -134,8 +133,9 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
         });
     }
 
-    function openProofModal(habit: Habit) {
+    function openProofModal(habit: Habit, date: string) {
         setProofHabit(habit);
+        setProofDate(date);
         setProofCaption('');
         setProofPreview(null);
         setProofFile(null);
@@ -155,6 +155,7 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
         const formData = new FormData();
         formData.append('photo', proofFile);
         formData.append('caption', proofCaption);
+        formData.append('date', proofDate);
 
         router.post(`/habits/${proofHabit.id}/proof`, formData as any, {
             forceFormData: true,
@@ -198,19 +199,31 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                 </div>
 
                 {/* ── Header 7 Hari ── */}
-                <div className="grid grid-cols-[1fr_auto] gap-4 mb-3">
+                <div className="grid grid-cols-[1fr_auto] gap-4 mb-3 items-end">
                     <div />
-                    <div className="grid grid-cols-7 gap-2 w-56 flex-shrink-0">
+                    <div className="flex flex-col w-56 flex-shrink-0">
+                        <div className="text-center text-[11px] font-semibold text-text-muted mb-2 uppercase tracking-wider">
+                            {(() => {
+                                const firstDate = new Date(last7Days[0] + 'T00:00:00');
+                                const lastDate = new Date(last7Days[6] + 'T00:00:00');
+                                if (firstDate.getMonth() !== lastDate.getMonth()) {
+                                    return `${firstDate.toLocaleString('id-ID', {month: 'short'})} - ${lastDate.toLocaleString('id-ID', {month: 'short', year: 'numeric'})}`;
+                                }
+                                return lastDate.toLocaleString('id-ID', {month: 'long', year: 'numeric'});
+                            })()}
+                        </div>
+                        <div className="grid grid-cols-7 gap-2 w-full">
                         {last7Days.map((dateStr, i) => {
                             const d = new Date(dateStr + 'T00:00:00');
                             const isToday = dateStr === todayStr;
                             return (
-                                <div key={i} className="flex flex-col items-center gap-1">
+                                <div key={i} className="flex flex-col items-center gap-1" title={new Intl.DateTimeFormat('id-ID', { dateStyle: 'full' }).format(d)}>
                                     <span className="text-[10px] text-text-muted font-medium">{DAYS_HEADER[d.getDay() === 0 ? 6 : d.getDay() - 1]}</span>
-                                    <span className={`text-[11px] font-bold ${isToday ? 'text-primary' : 'text-text-faint'}`}>{d.getDate()}</span>
+                                    <span className={`text-xs font-bold ${isToday ? 'text-primary' : 'text-white'}`}>{d.getDate()}</span>
                                 </div>
                             );
                         })}
+                        </div>
                     </div>
                 </div>
 
@@ -239,61 +252,28 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                                         last7Days={last7Days}
                                         onEdit={openEdit}
                                         onDelete={setHabitToDelete}
-                                        onToggle={handleHabitToggle}
+                                        onCheck={handleCheck}
+                                        onUncheck={handleUncheck}
                                     />
-                                    {/* Tombol bukti foto — muncul segera setelah dicentang */}
-                                    {doneToday && (
-                                        <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/50">
-                                            <span className="text-[11px] text-success font-medium flex items-center gap-2.5"><FaCheckCircle  className='mb-1 text-green-500' size={20}/> Selesai hari ini</span>
-                                            {!hasProof ? (
-                                                <button
-                                                    onClick={() => openProofModal(habit)}
-                                                    className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-primary transition-colors bg-card border border-border rounded-lg px-2 py-1"
-                                                >
-                                                    <FiCamera size={11} /> Tambah bukti foto
-                                                </button>
-                                            ) : (
-                                                <span className="text-[11px] text-primary flex items-center gap-1">
-                                                    <FiCamera size={11} /> Bukti sudah ada ✓
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
+                                    <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/50">
+                                        {doneToday && (
+                                            <span className="text-[11px] text-success font-medium flex items-center gap-2.5">
+                                                <FaCheckCircle className='mb-1 text-green-500' size={20}/> Selesai hari ini
+                                            </span>
+                                        )}
+                                        <button
+                                            onClick={() => setGalleryHabit(habit)}
+                                            className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-primary transition-colors bg-card border border-border rounded-lg px-2 py-1"
+                                        >
+                                            <FiCamera size={11} /> Lihat Jejak Foto
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
                 )}
-
-                {/* ── Galeri Memori Foto Bukti ── */}
-                {proofPhotos.length > 0 && (
-                    <div className="mt-12">
-                        <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                            <FaCameraRetro className="text-primary" size={20}/> Jejak Keberhasilanmu
-                        </h2>
-                        <p className="text-text-muted text-sm mb-5">Rekap foto bukti semua habit yang sudah kamu lakukan.</p>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                            {proofPhotos.map(photo => (
-                                <button
-                                    key={photo.id}
-                                    onClick={() => setLightboxPhoto(photo)}
-                                    className="group relative aspect-square rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-colors"
-                                >
-                                    <img
-                                        src={`/storage/${photo.photo_path}`}
-                                        alt={photo.caption ?? 'Bukti habit'}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end">
-                                        <p className="text-[10px] text-white font-medium px-2 pb-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
-                                            {photo.habit?.name}
-                                        </p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                {/* Galeri dihapus dari sini, dipindah ke Modal */}
             </div>
 
             {/* ── Modal Upload Bukti Foto ── */}
@@ -306,9 +286,14 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                                 <FiX size={20} />
                             </button>
                         </div>
-                        <p className="text-text-muted text-sm mb-4">
-                            Habit: <span className="text-primary font-semibold">{proofHabit.name}</span>
-                        </p>
+                        <div className="mb-4 space-y-1">
+                            <p className="text-text-muted text-sm">
+                                Habit: <span className="text-primary font-semibold">{proofHabit.name}</span>
+                            </p>
+                            <p className="text-text-muted text-sm">
+                                Tanggal: <span className="text-white font-medium">{new Intl.DateTimeFormat('id-ID', { dateStyle: 'full' }).format(new Date(proofDate + 'T00:00:00'))}</span>
+                            </p>
+                        </div>
                         <form onSubmit={submitProof} className="space-y-4">
                             {/* Upload foto */}
                             <div
@@ -345,6 +330,64 @@ export default function HabitIndex({ habits, points, proofPhotos }: Props) {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Modal Galeri Habit Khusus (Recap Template) ── */}
+            {galleryHabit && (
+                <div className="fixed inset-0 z-[45] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setGalleryHabit(null)}>
+                    <div className="bg-gradient-to-br from-[#1E1E1E] to-[#141414] border border-border rounded-3xl w-full max-w-2xl p-0 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in duration-200 overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                        
+                        {/* Header Rekap */}
+                        <div className="relative bg-gradient-to-r from-primary to-[#FF8C42] p-8 text-center">
+                            <button onClick={() => setGalleryHabit(null)} className="absolute top-4 right-4 text-white/80 hover:text-white p-1 rounded-full transition-colors bg-black/20 hover:bg-black/40">
+                                <FiX size={20} />
+                            </button>
+                            <div className="w-16 h-16 mx-auto bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-3xl mb-3 shadow-inner">
+                                {galleryHabit.icon || '🔥'}
+                            </div>
+                            <h3 className="text-2xl font-black text-white tracking-tight drop-shadow-md">
+                                Perjalanan {galleryHabit.name}
+                            </h3>
+                            <p className="text-white/80 text-sm mt-2 font-medium">
+                                Streak Tertinggi: <span className="text-white font-bold">{galleryHabit.longest_streak ?? 0} hari</span> • 
+                                Terkumpul: <span className="text-white font-bold">{proofPhotos.filter(p => p.habit_id === galleryHabit.id).length} foto</span>
+                            </p>
+                        </div>
+                        
+                        {/* Area Foto ala Polaroid */}
+                        <div className="p-8">
+                            {proofPhotos.filter(p => p.habit_id === galleryHabit.id).length > 0 ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                                    {proofPhotos.filter(p => p.habit_id === galleryHabit.id).map((photo, idx) => (
+                                        <div key={photo.id} className={`group relative bg-[#F9F9F9] p-2 pb-7 rounded-sm shadow-md transition-transform duration-300 hover:scale-105 hover:z-10 ${idx % 2 === 0 ? '-rotate-2' : 'rotate-2'}`}>
+                                            <div className="relative aspect-square overflow-hidden bg-gray-200 w-full shadow-inner border border-black/5">
+                                                <img
+                                                    src={`/storage/${photo.photo_path}`}
+                                                    alt={photo.caption ?? 'Bukti habit'}
+                                                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                    onClick={() => setLightboxPhoto(photo)}
+                                                />
+                                            </div>
+                                            <div className="absolute bottom-2 left-0 right-0 text-center px-2">
+                                                <p className="text-[11px] font-bold text-gray-600 tracking-wide">
+                                                    {new Date(photo.logged_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12">
+                                    <div className="w-16 h-16 mx-auto bg-card border border-border rounded-full flex items-center justify-center mb-4">
+                                        <FiCamera size={24} className="text-text-muted" />
+                                    </div>
+                                    <p className="text-white font-semibold">Belum ada rekap foto</p>
+                                    <p className="text-text-muted text-sm mt-1">Selesaikan habit ini dan kumpulkan momenmu!</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

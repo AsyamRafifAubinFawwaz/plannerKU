@@ -17,10 +17,11 @@ interface Props {
     last7Days: string[];
     onEdit: (habit: Habit) => void;
     onDelete: (habit: Habit) => void;
-    onToggle?: (habitId: number, date: string) => void;
+    onCheck?: (habitId: number, date: string) => void;
+    onUncheck?: (habitId: number, date: string) => void;
 }
 
-export function HabitRow({ habit, last7Days, onEdit, onDelete, onToggle }: Props) {
+export function HabitRow({ habit, last7Days, onEdit, onDelete, onCheck, onUncheck }: Props) {
     const todayStr = (() => {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -31,12 +32,11 @@ export function HabitRow({ habit, last7Days, onEdit, onDelete, onToggle }: Props
         habit.logs.some((log) => log.logged_date.split('T')[0] === date);
 
     function toggle(date: string) {
-        if (onToggle) {
-            onToggle(habit.id, date);
+        if (isDone(date)) {
+            if (onUncheck) onUncheck(habit.id, date);
+            else router.post(`/habits/${habit.id}/toggle`, { date }, { preserveScroll: true });
         } else {
-            router.post(`/habits/${habit.id}/toggle`, { date }, {
-                preserveScroll: true,
-            });
+            if (onCheck) onCheck(habit.id, date);
         }
     }
 
@@ -63,6 +63,7 @@ export function HabitRow({ habit, last7Days, onEdit, onDelete, onToggle }: Props
                         <div key={date} className="w-8 flex justify-center items-center">
                             <button
                                 onClick={() => toggle(date)}
+                                title={new Intl.DateTimeFormat('id-ID', { dateStyle: 'full' }).format(new Date(date + 'T00:00:00'))}
                                 className={`relative flex-shrink-0 flex items-center justify-center transition-all duration-200 cursor-pointer ${
                                     isDone(date) 
                                         ? 'bg-[#FF6B1A] border-[#D6540D] shadow-[0_3px_0_#D6540D] hover:brightness-110 hover:-translate-y-0.5 active:translate-y-[3px] active:shadow-none' 

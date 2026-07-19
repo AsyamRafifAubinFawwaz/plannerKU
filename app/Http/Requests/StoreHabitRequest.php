@@ -27,7 +27,15 @@ class StoreHabitRequest extends FormRequest
             'name'            => 'required|string|max:250',
             'icon'            => 'nullable|string',
             'target_per_week' => 'required|integer|min:1|max:7',
-
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if (empty($this->icon)) {
+            $this->merge([
+                'icon' => '🔥',
+            ]);
+        }
     }
 }
