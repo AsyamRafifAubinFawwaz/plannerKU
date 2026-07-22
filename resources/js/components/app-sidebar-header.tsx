@@ -2,20 +2,33 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { NotificationBell } from '@/components/notification-bell';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
+import { useAppearance } from '@/hooks/use-appearance';
+import { FiSun, FiMoon } from 'react-icons/fi';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
+    const { appearance, updateAppearance } = useAppearance();
+    const isDark = appearance === 'dark' || (appearance === 'system' && (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
     return (
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border/50 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
-            {/* Notification Bell — tampil di semua halaman */}
-            <NotificationBell />
+            <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
+                    className="p-2 rounded-full text-text-muted hover:text-foreground transition-colors bg-surface border border-border"
+                >
+                    {isDark ? <FiMoon size={18} /> : <FiSun size={18} />}
+                </button>
+                {/* Notification Bell — tampil di semua halaman */}
+                <NotificationBell />
+            </div>
         </header>
     );
 }

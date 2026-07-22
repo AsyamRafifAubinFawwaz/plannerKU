@@ -205,7 +205,6 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
             <Head title="Tugas" />
 
             <div className="p-8 w-full max-w-5xl mx-auto">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-2xl font-medium text-foreground">Tugas</h1>
                     <div className="flex items-center gap-2">
@@ -218,7 +217,6 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
                     </div>
                 </div>
 
-                {/* ── Tab Semua / Belum / Sudah ── */}
                 <div className="flex items-center gap-1 mb-5 bg-[#1A1A1A] p-1 rounded-xl w-fit">
                     {([
                         { key: 'all',  label: 'Semua',          count: localTasks.length,  countColor: 'text-text-muted', activeClass: 'bg-[#252525] text-white shadow-sm' },

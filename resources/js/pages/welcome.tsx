@@ -1,9 +1,12 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { FaFire } from 'react-icons/fa6';
-import { FiCheckCircle, FiCalendar } from 'react-icons/fi';
+import { FiCheckCircle, FiCalendar, FiSun, FiMoon } from 'react-icons/fi';
+import { useAppearance } from '@/hooks/use-appearance';
 
 export default function Welcome() {
     const { auth } = usePage().props as any;
+    const { appearance, updateAppearance } = useAppearance();
+    const isDark = appearance === 'dark' || (appearance === 'system' && (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
 
     return (
         <div className="min-h-screen bg-bg text-text selection:bg-primary/30 font-sans">
@@ -21,6 +24,12 @@ export default function Welcome() {
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
+                            className="p-2 rounded-full text-text-muted hover:text-foreground transition-colors bg-surface border border-border"
+                        >
+                            {isDark ? <FiMoon size={18} /> : <FiSun size={18} />}
+                        </button>
                         {auth?.user ? (
                             <Link
                                 href="/dashboard"
@@ -54,7 +63,7 @@ export default function Welcome() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-primary text-xs font-medium mb-6">
                         <FaFire /> Gratis selamanya. Upgrade kapan saja.
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight text-white">
+                    <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight text-foreground">
                         Satu tempat untuk <br />
                         <span className="text-primary">semua rencanamu.</span>
                     </h1>
@@ -95,16 +104,16 @@ export default function Welcome() {
                 {/* Fitur Utama */}
                 <div id="fitur" className="mb-32">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-white">Semua yang kamu butuhkan,<br/><span className="text-text-muted">tidak lebih, tidak kurang.</span></h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground">Semua yang kamu butuhkan,<br/><span className="text-text-muted">tidak lebih, tidak kurang.</span></h2>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6">
                         {/* Task Card */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
+                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
                             <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
                                 <FiCheckCircle size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">Task Planner</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-3">Task Planner</h3>
                             <p className="text-text-muted text-sm leading-relaxed mb-6">Tugas kuliah + harian dalam satu list. Label, deadline, dan foto lampiran.</p>
                             <ul className="space-y-3 text-sm text-text-muted font-medium">
                                 <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Label semantik</li>
@@ -119,7 +128,7 @@ export default function Welcome() {
                             <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
                                 <FaFire size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">Habit Tracker</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-3">Habit Tracker</h3>
                             <p className="text-text-muted text-sm leading-relaxed mb-6">Bangun kebiasaan dengan streak yang bikin kamu tidak mau berhenti.</p>
                             <ul className="space-y-3 text-sm text-text-muted font-medium">
                                 <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Desain koin 3D interaktif</li>
@@ -129,11 +138,11 @@ export default function Welcome() {
                         </div>
 
                         {/* Calendar Card */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
+                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
                             <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
                                 <FiCalendar size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-3">Kalender</h3>
+                            <h3 className="text-xl font-bold text-foreground mb-3">Kalender</h3>
                             <p className="text-text-muted text-sm leading-relaxed mb-6">Semua aktivitas dan event dalam satu tampilan rapi dan minimalis.</p>
                             <ul className="space-y-3 text-sm text-text-muted font-medium">
                                 <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Tampilan mingguan & bulanan</li>
@@ -147,16 +156,16 @@ export default function Welcome() {
                 {/* Harga */}
                 <div id="harga" className="mb-32">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-white">Mulai gratis. <span className="text-text-muted">Upgrade kapan saja.</span></h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground">Mulai gratis. <span className="text-text-muted">Upgrade kapan saja.</span></h2>
                         <p className="text-text-muted font-medium">Tidak ada kartu kredit. Bayar pas butuh saja.</p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-6 items-center">
                         {/* Gratis */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] rounded-3xl p-8">
+                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8">
                             <h3 className="text-xl font-bold text-text-muted mb-2">Gratis</h3>
                             <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-white">Rp 0</span>
+                                <span className="text-4xl font-extrabold text-foreground">Rp 0</span>
                                 <span className="text-text-muted text-sm font-medium">/selamanya</span>
                             </div>
                             <ul className="space-y-4 text-sm text-text-muted font-medium mb-8">
@@ -178,7 +187,7 @@ export default function Welcome() {
                             </div>
                             <h3 className="text-xl font-bold text-primary mb-2">Pro</h3>
                             <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-white">Rp 19rb</span>
+                                <span className="text-4xl font-extrabold text-foreground">Rp 19rb</span>
                                 <span className="text-text-muted text-sm font-medium">/bulan</span>
                             </div>
                             <ul className="space-y-4 text-sm text-text font-medium mb-8">
@@ -194,10 +203,10 @@ export default function Welcome() {
                         </div>
 
                         {/* Max */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] rounded-3xl p-8">
+                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8">
                             <h3 className="text-xl font-bold text-text-muted mb-2">Max</h3>
                             <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-white">Rp 39rb</span>
+                                <span className="text-4xl font-extrabold text-foreground">Rp 39rb</span>
                                 <span className="text-text-muted text-sm font-medium">/bulan</span>
                             </div>
                             <ul className="space-y-4 text-sm text-text-muted font-medium mb-8">
@@ -217,7 +226,7 @@ export default function Welcome() {
                 {/* Testimoni */}
                 <div id="testimoni" className="mb-32">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-extrabold mb-4 text-white">Apa kata mereka?</h2>
+                        <h2 className="text-3xl font-extrabold mb-4 text-foreground">Apa kata mereka?</h2>
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
                         <div className="bg-surface border border-border rounded-2xl p-6">
@@ -226,7 +235,7 @@ export default function Welcome() {
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-[#1D9E75] flex items-center justify-center text-white font-bold">A</div>
                                 <div>
-                                    <div className="font-bold text-sm text-white">Anisa S.</div>
+                                    <div className="font-bold text-sm text-foreground">Anisa S.</div>
                                     <div className="text-xs text-text-faint">Mhs. Teknik UI</div>
                                 </div>
                             </div>
@@ -237,7 +246,7 @@ export default function Welcome() {
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">B</div>
                                 <div>
-                                    <div className="font-bold text-sm text-white">Bagas R.</div>
+                                    <div className="font-bold text-sm text-foreground">Bagas R.</div>
                                     <div className="text-xs text-text-faint">Mhs. Manajemen</div>
                                 </div>
                             </div>
@@ -248,7 +257,7 @@ export default function Welcome() {
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-[#378ADD] flex items-center justify-center text-white font-bold">S</div>
                                 <div>
-                                    <div className="font-bold text-sm text-white">Sari E.</div>
+                                    <div className="font-bold text-sm text-foreground">Sari E.</div>
                                     <div className="text-xs text-text-faint">Freelancer</div>
                                 </div>
                             </div>
@@ -259,7 +268,7 @@ export default function Welcome() {
                 {/* Bottom CTA */}
                 <div className="text-center bg-surface border border-border rounded-[2.5rem] p-12 md:p-20 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
-                    <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-white">Mulai sekarang, gratis.</h2>
+                    <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-foreground">Mulai sekarang, gratis.</h2>
                     <p className="text-text-muted text-lg mb-10 font-medium">Tidak perlu kartu kredit • Daftar 10 detik • Cancel kapan saja</p>
                     <Link
                         href="/register"
