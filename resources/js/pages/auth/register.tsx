@@ -27,49 +27,19 @@ export default function Register({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-5">
                             <div className="grid gap-2">
-                                <Label htmlFor="name" className="text-white font-medium">Nama Lengkap</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="name"
-                                    name="name"
-                                    placeholder="Masukkan nama lengkapmu"
-                                    className="bg-bg border-border text-white rounded-xl px-4 py-6 focus-visible:ring-primary/50"
-                                />
-                                <InputError message={errors.name} />
-                            </div>
-
-                            <div className="grid gap-2">
                                 <Label htmlFor="email" className="text-white font-medium">Email address</Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     required
-                                    tabIndex={2}
+                                    autoFocus
+                                    tabIndex={1}
                                     autoComplete="email"
                                     name="email"
                                     placeholder="email@contoh.com"
                                     className="bg-bg border-border text-white rounded-xl px-4 py-6 focus-visible:ring-primary/50"
                                 />
                                 <InputError message={errors.email} />
-                            </div>
-                            
-                            <div className="grid gap-2">
-                                <Label htmlFor="wa_number" className="text-white font-medium">Nomor WhatsApp</Label>
-                                <Input
-                                    id="wa_number"
-                                    type="text"
-                                    required
-                                    tabIndex={3}
-                                    autoComplete="tel"
-                                    name="wa_number"
-                                    placeholder="Contoh: 08123456789"
-                                    className="bg-bg border-border text-white rounded-xl px-4 py-6 focus-visible:ring-primary/50"
-                                />
-                                <InputError message={errors.wa_number as string} />
                             </div>
 
                             <div className="grid gap-2">

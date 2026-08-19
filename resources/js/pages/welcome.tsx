@@ -1,39 +1,80 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { FaFire } from 'react-icons/fa6';
-import { FiCheckCircle, FiCalendar, FiSun, FiMoon } from 'react-icons/fi';
+import {
+    FiCheckCircle,
+    FiCalendar,
+    FiSun,
+    FiMoon,
+    FiInstagram,
+    FiTwitter,
+    FiGithub,
+} from 'react-icons/fi';
 import { useAppearance } from '@/hooks/use-appearance';
 
 export default function Welcome() {
-    const { auth } = usePage().props as any;
+    const { auth, stats } = usePage().props as any;
     const { appearance, updateAppearance } = useAppearance();
-    const isDark = appearance === 'dark' || (appearance === 'system' && (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches));
+    const isDark =
+        appearance === 'dark' ||
+        (appearance === 'system' &&
+            typeof window !== 'undefined' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     return (
-        <div className="min-h-screen bg-bg text-text selection:bg-primary/30 font-sans">
+        <div className="bg-bg text-text min-h-screen font-sans selection:bg-primary/30">
             <Head title="PlannerKu - Satu tempat untuk semua rencanamu" />
 
-            {/* Navbar */}
-            <nav className="border-b border-border bg-surface/50 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-                        <img src="/image/logo-light.svg" alt="PlannerKu" className="h-8 w-auto object-contain" />
+            <nav className="bg-surface/50 sticky top-0 z-50 border-b border-border backdrop-blur-md">
+                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+                    <img
+                        src="/image/logo-gelap.svg"
+                        alt="PlannerKu"
+                        className="hidden dark:block w-auto"
+                    />
+                    <img
+                        src="/image/logo-terang.svg"
+                        alt="PlannerKu"
+                        className="block dark:hidden w-auto"
+                    />
 
-                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-muted">
-                        <a href="#fitur" className="hover:text-primary transition-colors">Fitur</a>
-                        <a href="#harga" className="hover:text-primary transition-colors">Harga</a>
-                        <a href="#testimoni" className="hover:text-primary transition-colors">Testimoni</a>
+                    <div className="text-text-muted hidden items-center gap-8 text-sm font-medium md:flex">
+                        <a
+                            href="#fitur"
+                            className="transition-colors hover:text-primary"
+                        >
+                            Fitur
+                        </a>
+                        <a
+                            href="#harga"
+                            className="transition-colors hover:text-primary"
+                        >
+                            Harga
+                        </a>
+                        <a
+                            href="#testimoni"
+                            className="transition-colors hover:text-primary"
+                        >
+                            Testimoni
+                        </a>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
-                            className="p-2 rounded-full text-text-muted hover:text-foreground transition-colors bg-surface border border-border"
+                        <button
+                            onClick={() =>
+                                updateAppearance(isDark ? 'light' : 'dark')
+                            }
+                            className="text-text-muted cursor-pointer bg-surface rounded-full border border-border p-2 transition-colors hover:text-foreground"
                         >
-                            {isDark ? <FiMoon size={18} /> : <FiSun size={18} />}
+                            {isDark ? (
+                                <FiMoon size={18} />
+                            ) : (
+                                <FiSun size={18} />
+                            )}
                         </button>
                         {auth?.user ? (
                             <Link
                                 href="/dashboard"
-                                className="bg-primary text-white px-5 py-2 rounded-xl font-bold text-sm border-b-4 border-b-[#C4500D] active:translate-y-[2px] active:border-b-[1px] transition-all"
+                                className="rounded-xl border-b-4 border-b-[#C4500D] bg-primary px-5 py-2 text-sm font-bold text-white transition-all active:translate-y-[2px] active:border-b-[1px]"
                             >
                                 Dashboard
                             </Link>
@@ -41,13 +82,13 @@ export default function Welcome() {
                             <>
                                 <Link
                                     href="/login"
-                                    className="text-text-muted hover:text-white font-medium text-sm transition-colors"
+                                    className="bg-surface text-text-muted rounded-xl border border-border px-5 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-colors active:translate-y-[2px] active:border-b-[1px]"
                                 >
                                     Masuk
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="bg-primary text-white px-5 py-2 rounded-xl font-bold text-sm border-b-4 border-b-[#C4500D] active:translate-y-[2px] active:border-b-[1px] transition-all"
+                                    className="rounded-xl border-b-4 border-b-[#C4500D] bg-primary px-5 py-2 text-sm font-bold text-white transition-all active:translate-y-[2px] active:border-b-[1px]"
                                 >
                                     Coba Gratis
                                 </Link>
@@ -57,29 +98,28 @@ export default function Welcome() {
                 </div>
             </nav>
 
-            <main className="max-w-6xl mx-auto px-6 pt-24 pb-32">
-                {/* Hero Section */}
-                <div className="text-center max-w-3xl mx-auto mb-20">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-primary text-xs font-medium mb-6">
-                        <FaFire /> Gratis selamanya. Upgrade kapan saja.
-                    </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight text-foreground">
+            <main className="mx-auto max-w-6xl px-6 pt-24 pb-32">
+                <div className="mx-auto mb-20 max-w-3xl text-center">
+                
+                    <h1 className="mb-6 text-5xl leading-tight font-extrabold text-foreground md:text-6xl">
                         Satu tempat untuk <br />
                         <span className="text-primary">semua rencanamu.</span>
                     </h1>
-                    <p className="text-text-muted text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-                        Tugas kuliah, kebiasaan harian, dan kalender semuanya dalam satu app yang simpel, bergaya game, dan anti-membosankan.
+                    <p className="text-text-muted mx-auto mb-10 max-w-2xl text-lg leading-relaxed md:text-xl">
+                        Tugas kuliah, kebiasaan harian, dan kalender semuanya
+                        dalam satu app yang simpel, bergaya game, dan
+                        anti-membosankan.
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
-                            href={auth?.user ? "/dashboard" : "/register"}
-                            className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-2xl font-bold text-lg border-b-[6px] border-b-[#C4500D] active:translate-y-[4px] active:border-b-[2px] transition-all text-center"
+                            href={auth?.user ? '/dashboard' : '/register'}
+                            className="w-full rounded-2xl border-b-[6px] border-b-[#C4500D] bg-primary px-8 py-4 text-center text-lg font-bold text-white transition-all active:translate-y-[4px] active:border-b-[2px] sm:w-auto"
                         >
                             Mulai Gratis Sekarang
                         </Link>
                         <a
                             href="#fitur"
-                            className="w-full sm:w-auto bg-surface text-text px-8 py-4 rounded-2xl font-bold text-lg border-b-[6px] border-b-[#0A0A0A] border border-border active:translate-y-[4px] active:border-b-[2px] transition-all text-center hover:bg-card"
+                            className="bg-surface text-text w-full rounded-2xl border border-b-[6px] border-border px-8 py-4 text-center text-lg font-bold transition-all hover:bg-card active:translate-y-[4px] active:border-b-[2px] sm:w-auto"
                         >
                             Lihat Fitur
                         </a>
@@ -87,67 +127,121 @@ export default function Welcome() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-12 border-y border-border mb-32">
+                <div className="mb-32 grid grid-cols-2 gap-6 border-y border-border py-12 md:grid-cols-4">
                     {[
-                        { label: 'Pengguna aktif', value: '1.200+' },
-                        { label: 'Tugas selesai', value: '48.000+' },
-                        { label: 'Streak diraih', value: '12.000+' },
-                        { label: 'Rating app', value: '4.9 ★' },
+                        { label: 'Pengguna aktif', value: (stats?.users ?? 0).toLocaleString('id-ID') },
+                        { label: 'Tugas selesai', value: (stats?.tasks ?? 0).toLocaleString('id-ID') },
+                        { label: 'Streak diraih', value: (stats?.streaks ?? 0).toLocaleString('id-ID') },
+                        { label: 'Rating app', value: `${stats?.rating ?? '4.9'} ★` },
                     ].map((stat, i) => (
                         <div key={i} className="text-center">
-                            <div className="text-3xl font-extrabold text-primary mb-1">{stat.value}</div>
-                            <div className="text-text-muted text-sm font-medium">{stat.label}</div>
+                            <div className="mb-1 text-3xl font-extrabold text-primary">
+                                {stat.value}
+                            </div>
+                            <div className="text-text-muted text-sm font-medium">
+                                {stat.label}
+                            </div>
                         </div>
                     ))}
                 </div>
 
                 {/* Fitur Utama */}
                 <div id="fitur" className="mb-32">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground">Semua yang kamu butuhkan,<br/><span className="text-text-muted">tidak lebih, tidak kurang.</span></h2>
+                    <div className="mb-16 text-center">
+                        <h2 className="mb-4 text-3xl font-extrabold text-foreground md:text-4xl">
+                            Semua yang kamu butuhkan,
+                            <br />
+                            <span className="text-text-muted">
+                                tidak lebih, tidak kurang.
+                            </span>
+                        </h2>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6">
+                    <div className="grid gap-6 md:grid-cols-3">
                         {/* Task Card */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
-                            <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
+                        <div className="bg-surface rounded-3xl border border-b-[6px] border-border p-8 transition-transform hover:-translate-y-1">
+                            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary">
                                 <FiCheckCircle size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-foreground mb-3">Task Planner</h3>
-                            <p className="text-text-muted text-sm leading-relaxed mb-6">Tugas kuliah + harian dalam satu list. Label, deadline, dan foto lampiran.</p>
-                            <ul className="space-y-3 text-sm text-text-muted font-medium">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Label semantik</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Set deadline & reminder</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Lampiran foto (Pro)</li>
+                            <h3 className="mb-3 text-xl font-bold text-foreground">
+                                Task Planner
+                            </h3>
+                            <p className="text-text-muted mb-6 text-sm leading-relaxed">
+                                Tugas kuliah + harian dalam satu list. Label,
+                                deadline, dan foto lampiran.
+                            </p>
+                            <ul className="text-text-muted space-y-3 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Label semantik
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Set deadline & reminder
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Lampiran foto (Pro)
+                                </li>
                             </ul>
                         </div>
 
                         {/* Habit Card */}
-                        <div className="bg-surface border border-primary/50 border-b-[6px] border-b-primary/30 rounded-3xl p-8 relative hover:-translate-y-1 transition-transform">
-                            <div className="absolute top-6 right-6 bg-primary/20 text-primary text-xs font-bold px-3 py-1 rounded-full">Gamifikasi</div>
-                            <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
+                        <div className="bg-surface relative rounded-3xl border border-b-[6px] border-primary/50 border-b-primary/30 p-8 transition-transform hover:-translate-y-1">
+                            <div className="absolute top-6 right-6 rounded-full bg-primary/20 px-3 py-1 text-xs font-bold text-primary">
+                                Gamifikasi
+                            </div>
+                            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary">
                                 <FaFire size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-foreground mb-3">Habit Tracker</h3>
-                            <p className="text-text-muted text-sm leading-relaxed mb-6">Bangun kebiasaan dengan streak yang bikin kamu tidak mau berhenti.</p>
-                            <ul className="space-y-3 text-sm text-text-muted font-medium">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Desain koin 3D interaktif</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Dot tracker 7 hari</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Streak system</li>
+                            <h3 className="mb-3 text-xl font-bold text-foreground">
+                                Habit Tracker
+                            </h3>
+                            <p className="text-text-muted mb-6 text-sm leading-relaxed">
+                                Bangun kebiasaan dengan streak yang bikin kamu
+                                tidak mau berhenti.
+                            </p>
+                            <ul className="text-text-muted space-y-3 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Desain koin 3D interaktif
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Dot tracker 7 hari
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Streak system
+                                </li>
                             </ul>
                         </div>
 
                         {/* Calendar Card */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8 hover:-translate-y-1 transition-transform">
-                            <div className="w-12 h-12 bg-card rounded-2xl border border-border flex items-center justify-center text-primary mb-6">
+                        <div className="bg-surface rounded-3xl border border-b-[6px] border-border p-8 transition-transform hover:-translate-y-1">
+                            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-card text-primary">
                                 <FiCalendar size={24} />
                             </div>
-                            <h3 className="text-xl font-bold text-foreground mb-3">Kalender</h3>
-                            <p className="text-text-muted text-sm leading-relaxed mb-6">Semua aktivitas dan event dalam satu tampilan rapi dan minimalis.</p>
-                            <ul className="space-y-3 text-sm text-text-muted font-medium">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Tampilan mingguan & bulanan</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Event multi-hari</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Label warna per event</li>
+                            <h3 className="mb-3 text-xl font-bold text-foreground">
+                                Kalender
+                            </h3>
+                            <p className="text-text-muted mb-6 text-sm leading-relaxed">
+                                Semua aktivitas dan event dalam satu tampilan
+                                rapi dan minimalis.
+                            </p>
+                            <ul className="text-text-muted space-y-3 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Tampilan mingguan & bulanan
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Event multi-hari
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Label warna per event
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -155,68 +249,146 @@ export default function Welcome() {
 
                 {/* Harga */}
                 <div id="harga" className="mb-32">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground">Mulai gratis. <span className="text-text-muted">Upgrade kapan saja.</span></h2>
-                        <p className="text-text-muted font-medium">Tidak ada kartu kredit. Bayar pas butuh saja.</p>
+                    <div className="mb-16 text-center">
+                        <h2 className="mb-4 text-3xl font-extrabold text-foreground md:text-4xl">
+                            Mulai gratis.{' '}
+                            <span className="text-text-muted">
+                                Upgrade kapan saja.
+                            </span>
+                        </h2>
+                        <p className="text-text-muted font-medium">
+                            Tidak ada kartu kredit. Bayar pas butuh saja.
+                        </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6 items-center">
+                    <div className="grid items-center gap-6 md:grid-cols-3">
                         {/* Gratis */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8">
-                            <h3 className="text-xl font-bold text-text-muted mb-2">Gratis</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-foreground">Rp 0</span>
-                                <span className="text-text-muted text-sm font-medium">/selamanya</span>
+                        <div className="bg-surface rounded-3xl border border-b-[6px] border-border p-8">
+                            <h3 className="text-text-muted mb-2 text-xl font-bold">
+                                Gratis
+                            </h3>
+                            <div className="mb-6 flex items-baseline gap-1">
+                                <span className="text-4xl font-extrabold text-foreground">
+                                    Rp 0
+                                </span>
+                                <span className="text-text-muted text-sm font-medium">
+                                    /selamanya
+                                </span>
                             </div>
-                            <ul className="space-y-4 text-sm text-text-muted font-medium mb-8">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> 10 tugas/bulan</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> 3 habit aktif</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> 10 event kalender</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Lampiran (1 foto, 2MB)</li>
-                                <li className="flex items-center gap-3 opacity-30"><FiCheckCircle /> Notif WA Harian otomatis</li>
+                            <ul className="text-text-muted mb-8 space-y-4 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    10 tugas/bulan
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" /> 3
+                                    habit aktif
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    10 event kalender
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Lampiran (1 foto, 2MB)
+                                </li>
+                                <li className="flex items-center gap-3 opacity-30">
+                                    <FiCheckCircle /> Notif WA Harian otomatis
+                                </li>
                             </ul>
-                            <Link href="/register" className="block w-full text-center bg-card text-text border border-border py-3 rounded-xl font-bold hover:bg-border transition-colors">
+                            <Link
+                                href="/register"
+                                className="text-text block w-full rounded-xl border border-border bg-card py-3 text-center font-bold transition-colors hover:bg-border"
+                            >
                                 Mulai Gratis
                             </Link>
                         </div>
 
                         {/* Pro */}
-                        <div className="bg-surface border-2 border-primary border-b-[8px] border-b-[#C4500D] rounded-3xl p-8 relative transform md:-translate-y-4">
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full">
+                        <div className="bg-surface relative transform rounded-3xl border-2 border-b-[8px] border-primary border-b-[#C4500D] p-8 md:-translate-y-4">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-white">
                                 Paling Populer
                             </div>
-                            <h3 className="text-xl font-bold text-primary mb-2">Pro</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-foreground">Rp 19rb</span>
-                                <span className="text-text-muted text-sm font-medium">/bulan</span>
+                            <h3 className="mb-2 text-xl font-bold text-primary">
+                                Pro
+                            </h3>
+                            <div className="mb-6 flex items-baseline gap-1">
+                                <span className="text-4xl font-extrabold text-foreground">
+                                    Rp 19rb
+                                </span>
+                                <span className="text-text-muted text-sm font-medium">
+                                    /bulan
+                                </span>
                             </div>
-                            <ul className="space-y-4 text-sm text-text font-medium mb-8">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Tugas tak terbatas</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Habit tak terbatas</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Event tak terbatas</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Lampiran (3 foto, 5MB/foto)</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-primary"/> Notif WA Harian otomatis</li>
+                            <ul className="text-text mb-8 space-y-4 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Tugas tak terbatas
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Habit tak terbatas
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Event tak terbatas
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Lampiran (3 foto, 5MB/foto)
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-primary" />{' '}
+                                    Notif WA Harian otomatis
+                                </li>
                             </ul>
-                            <Link href="/register" className="block w-full text-center bg-primary text-white py-3 rounded-xl font-bold border-b-4 border-b-[#C4500D] active:translate-y-[2px] active:border-b-[2px] transition-all">
+                            <Link
+                                href="/register"
+                                className="block w-full rounded-xl border-b-4 border-b-[#C4500D] bg-primary py-3 text-center font-bold text-white transition-all active:translate-y-[2px] active:border-b-[2px]"
+                            >
                                 Upgrade ke Pro
                             </Link>
                         </div>
 
                         {/* Max */}
-                        <div className="bg-surface border border-border border-b-[6px] border-b-[#0A0A0A] dark:border-b-[#0A0A0A] rounded-3xl p-8">
-                            <h3 className="text-xl font-bold text-text-muted mb-2">Max</h3>
-                            <div className="flex items-baseline gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-foreground">Rp 39rb</span>
-                                <span className="text-text-muted text-sm font-medium">/bulan</span>
+                        <div className="bg-surface rounded-3xl border border-b-[6px] border-border p-8">
+                            <h3 className="text-text-muted mb-2 text-xl font-bold">
+                                Max
+                            </h3>
+                            <div className="mb-6 flex items-baseline gap-1">
+                                <span className="text-4xl font-extrabold text-foreground">
+                                    Rp 39rb
+                                </span>
+                                <span className="text-text-muted text-sm font-medium">
+                                    /bulan
+                                </span>
                             </div>
-                            <ul className="space-y-4 text-sm text-text-muted font-medium mb-8">
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Semua fitur Pro</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Multi-akun (Sharing)</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Statistik & Analisa Habit</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Timeline Group / Kelompok</li>
-                                <li className="flex items-center gap-3"><FiCheckCircle className="text-success"/> Export tugas ke PDF</li>
+                            <ul className="text-text-muted mb-8 space-y-4 text-sm font-medium">
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Semua fitur Pro
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Multi-akun (Sharing)
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Statistik & Analisa Habit
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Timeline Group / Kelompok
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <FiCheckCircle className="text-success" />{' '}
+                                    Export tugas ke PDF
+                                </li>
                             </ul>
-                            <Link href="/register" className="block w-full text-center bg-card text-text border border-border py-3 rounded-xl font-bold hover:bg-border transition-colors">
+                            <Link
+                                href="/register"
+                                className="text-text block w-full rounded-xl border border-border bg-card py-3 text-center font-bold transition-colors hover:bg-border"
+                            >
                                 Upgrade ke Max
                             </Link>
                         </div>
@@ -225,40 +397,75 @@ export default function Welcome() {
 
                 {/* Testimoni */}
                 <div id="testimoni" className="mb-32">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl font-extrabold mb-4 text-foreground">Apa kata mereka?</h2>
+                    <div className="mb-16 text-center">
+                        <h2 className="mb-4 text-3xl font-extrabold text-foreground">
+                            Apa kata mereka?
+                        </h2>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-surface border border-border rounded-2xl p-6">
-                            <div className="text-primary text-4xl font-serif mb-4">"</div>
-                            <p className="text-text-muted text-sm italic mb-6">Akhirnya ada planner yang simpel. Streak-nya bikin nagih, ngga sabar nyentang tiap hari!</p>
+                    <div className="grid gap-6 md:grid-cols-3">
+                        <div className="bg-surface rounded-2xl border border-border p-6">
+                            <div className="mb-4 font-serif text-4xl text-primary">
+                                "
+                            </div>
+                            <p className="text-text-muted mb-6 text-sm italic">
+                                Akhirnya ada planner yang simpel. Streak-nya
+                                bikin nagih, ngga sabar nyentang tiap hari!
+                            </p>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-[#1D9E75] flex items-center justify-center text-white font-bold">A</div>
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1D9E75] font-bold text-white">
+                                    A
+                                </div>
                                 <div>
-                                    <div className="font-bold text-sm text-foreground">Anisa S.</div>
-                                    <div className="text-xs text-text-faint">Mhs. Teknik UI</div>
+                                    <div className="text-sm font-bold text-foreground">
+                                        Anisa S.
+                                    </div>
+                                    <div className="text-text-faint text-xs">
+                                        Mhs. Teknik UI
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-surface border border-border rounded-2xl p-6">
-                            <div className="text-primary text-4xl font-serif mb-4">"</div>
-                            <p className="text-text-muted text-sm italic mb-6">Fitur foto tugas andalan banget. Foto soal dari WA dosen langsung kerekam di jadwal.</p>
+                        <div className="bg-surface rounded-2xl border border-border p-6">
+                            <div className="mb-4 font-serif text-4xl text-primary">
+                                "
+                            </div>
+                            <p className="text-text-muted mb-6 text-sm italic">
+                                Fitur foto tugas andalan banget. Foto soal dari
+                                WA dosen langsung kerekam di jadwal.
+                            </p>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">B</div>
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-white">
+                                    B
+                                </div>
                                 <div>
-                                    <div className="font-bold text-sm text-foreground">Bagas R.</div>
-                                    <div className="text-xs text-text-faint">Mhs. Manajemen</div>
+                                    <div className="text-sm font-bold text-foreground">
+                                        Bagas R.
+                                    </div>
+                                    <div className="text-text-faint text-xs">
+                                        Mhs. Manajemen
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-surface border border-border rounded-2xl p-6">
-                            <div className="text-primary text-4xl font-serif mb-4">"</div>
-                            <p className="text-text-muted text-sm italic mb-6">Nyobain versi gratis, langsung upgrade Pro. Notif WA pagi hari lumayan nyelamatin nyawa.</p>
+                        <div className="bg-surface rounded-2xl border border-border p-6">
+                            <div className="mb-4 font-serif text-4xl text-primary">
+                                "
+                            </div>
+                            <p className="text-text-muted mb-6 text-sm italic">
+                                Nyobain versi gratis, langsung upgrade Pro.
+                                Notif WA pagi hari lumayan nyelamatin nyawa.
+                            </p>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-[#378ADD] flex items-center justify-center text-white font-bold">S</div>
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#378ADD] font-bold text-white">
+                                    S
+                                </div>
                                 <div>
-                                    <div className="font-bold text-sm text-foreground">Sari E.</div>
-                                    <div className="text-xs text-text-faint">Freelancer</div>
+                                    <div className="text-sm font-bold text-foreground">
+                                        Sari E.
+                                    </div>
+                                    <div className="text-text-faint text-xs">
+                                        Freelancer
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -266,25 +473,82 @@ export default function Welcome() {
                 </div>
 
                 {/* Bottom CTA */}
-                <div className="text-center bg-surface border border-border rounded-[2.5rem] p-12 md:p-20 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
-                    <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-foreground">Mulai sekarang, gratis.</h2>
-                    <p className="text-text-muted text-lg mb-10 font-medium">Tidak perlu kartu kredit • Daftar 10 detik • Cancel kapan saja</p>
+                <div className="bg-surface relative overflow-hidden rounded-[2.5rem] border border-border p-12 text-center md:p-20">
+                    <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+                    <h2 className="mb-6 text-4xl font-extrabold text-foreground md:text-5xl">
+                        Mulai sekarang, gratis.
+                    </h2>
+                    <p className="text-text-muted mb-10 text-lg font-medium">
+                        Tidak perlu kartu kredit • Daftar 10 detik • Cancel
+                        kapan saja
+                    </p>
                     <Link
                         href="/register"
-                        className="inline-block bg-primary text-white px-10 py-5 rounded-2xl font-bold text-xl border-b-[6px] border-b-[#C4500D] active:translate-y-[4px] active:border-b-[2px] transition-all shadow-xl shadow-primary/20"
+                        className="inline-block rounded-2xl border-b-[6px] border-b-[#C4500D] bg-primary px-10 py-5 text-xl font-bold text-white shadow-xl shadow-primary/20 transition-all active:translate-y-[4px] active:border-b-[2px]"
                     >
                         Daftar Gratis Sekarang
                     </Link>
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="border-t border-border bg-surface py-12">
-                <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <img src="/image/logo-light.svg" alt="PlannerKu" className="h-6 w-auto object-contain" />
-                    <div className="text-text-muted text-sm font-medium">
-                        © {new Date().getFullYear()} PlannerKu. Dibuat dengan ❤️ di Indonesia.
+            <footer className="bg-surface border-t border-border py-12">
+                <div className="mx-auto max-w-6xl px-6">
+                    <div className="mb-8 flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
+                        <div className="flex flex-col items-center gap-5 md:items-start">
+                            <div className="relative">
+                                <img
+                                    src="/image/logo-terang.svg"
+                                    alt="PlannerKu"
+                                    className="block h-6 w-auto object-contain dark:hidden"
+                                />
+                                <img
+                                    src="/image/logo-gelap.svg"
+                                    alt="PlannerKu"
+                                    className="hidden h-6 w-auto object-contain dark:block"
+                                />
+                            </div>
+                            <div className="text-text-muted flex items-center gap-4">
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-primary"
+                                >
+                                    <FiInstagram size={20} />
+                                </a>
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-primary"
+                                >
+                                    <FiTwitter size={20} />
+                                </a>
+                                <a
+                                    href="#"
+                                    className="transition-colors hover:text-primary"
+                                >
+                                    <FiGithub size={20} />
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* Kanan: Support By */}
+                        <div className="flex flex-col items-center gap-3 md:items-end">
+                            <p className="text-text-muted text-sm font-medium">
+                                Support by :
+                            </p>
+                            <img
+                                src="/image/Secondary Logo.png"
+                                alt="Supported By"
+                                className="h-12 w-auto object-contain"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Bawah: Copyright Center */}
+                    <div className="border-t border-border pt-8 text-center">
+                        <div className="text-text-muted text-sm font-medium">
+                            © {new Date().getFullYear()} PlannerKu by motrack.{' '}
+                            <br className="md:hidden" />
+                            Dibuat dengan bangga di Indonesia.
+                        </div>
                     </div>
                 </div>
             </footer>

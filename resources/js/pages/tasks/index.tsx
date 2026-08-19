@@ -166,7 +166,7 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
         newList.splice(insertIdx, 0, movedTask);
 
         setLocalTasks(newList);
-        setSortKey('manual'); // reset ke manual setelah drag
+        setSortKey('manual');   
 
         const newDisplayList = Array.from(displayList);
         newDisplayList.splice(result.source.index, 1);
@@ -179,21 +179,18 @@ export default function TasksIndex({ tasks: initialTasks }: Props) {
         window.location.href = '/tasks/export';
     };
 
-    // Filter by tab
     const tabFiltered = localTasks.filter(t => {
         const isDone = localDoneIds.has(t.id);
         if (activeTab === 'todo') return !isDone;
         if (activeTab === 'done') return isDone;
-        return true; // 'all'
+        return true; 
     });
 
-    // Filter by category
     const categoryFiltered = tabFiltered.filter(t => {
         if (activeFilter === 'Semua') return true;
         return t.category.toLowerCase() === activeFilter.toLowerCase();
     });
 
-    // Sort (jika bukan manual)
     const displayList = applySortKey(categoryFiltered, sortKey);
 
     const todoCount = localTasks.filter(t => !localDoneIds.has(t.id)).length;

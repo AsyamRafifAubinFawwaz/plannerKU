@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HabitLogsController;
@@ -12,10 +13,19 @@ use App\Http\Controllers\WorkspaceTaskChecklistController;
 use App\Http\Controllers\WorkspaceTaskController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', function () {
+    return inertia('welcome', [
+        'stats' => [
+            'users' => \App\Models\User::count(),
+            'tasks' => \App\Models\Task::where('is_done', true)->count(),
+            'streaks' => (int) \App\Models\Habit::sum('longest_streak'),
+            'rating' => 4.9,
+        ]
+    ]);
+})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/tasks/export', [TaskExportController::class, 'downloadPdf'])->name('tasks.export');
     Route::post('/tasks/reorder', [TaskController::class, 'reorder'])->name('tasks.reorder');

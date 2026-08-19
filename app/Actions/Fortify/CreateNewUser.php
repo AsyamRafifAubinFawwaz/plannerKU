@@ -19,17 +19,20 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        // Jika form pendaftaran disederhanakan dan tidak mengirim 'name', buat otomatis dari email
+        if (empty($input['name']) && !empty($input['email'])) {
+            $input['name'] = explode('@', $input['email'])[0];
+        }
+
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
-            'wa_number' => ['nullable', 'string', 'max:20'],
         ])->validate();
 
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
-            'wa_number' => $input['wa_number'] ?? null,
         ]);
     }
 }

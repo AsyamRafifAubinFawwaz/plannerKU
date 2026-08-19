@@ -1,15 +1,27 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
-        <style>
-            html {
-                background-color: oklch(0.145 0 0); /* Dark mode background */
-            }
-        </style>
+        {{-- Inline script to apply theme immediately and prevent FOUC --}}
+        <script>
+            (function() {
+                try {
+                    var appearance = localStorage.getItem('appearance') || 'system';
+                    var isDark = appearance === 'dark' || (appearance === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if (isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.style.colorScheme = 'dark';
+                        document.documentElement.style.backgroundColor = '#141414'; /* Dark mode background */
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.style.colorScheme = 'light';
+                        document.documentElement.style.backgroundColor = '#ffffff'; /* Light mode background */
+                    }
+                } catch (e) {}
+            })();
+        </script>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

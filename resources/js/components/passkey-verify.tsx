@@ -41,25 +41,9 @@ export default function PasskeyVerify({
 
     return (
         <>
-            <div className="grid gap-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={verify}
-                    disabled={isLoading}
-                >
-                    {isLoading ? <Spinner /> : <KeyRound className="h-4 w-4" />}
-                    {isLoading
-                        ? (loadingLabel ?? 'Authenticating...')
-                        : (label ?? 'Sign in with a passkey')}
-                </Button>
-                {error && (
-                    <InputError message={error} className="text-center" />
-                )}
-            </div>
+          
 
-            <div className="relative my-6">
+            {/* <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                     <Separator className="w-full" />
                 </div>
@@ -68,7 +52,7 @@ export default function PasskeyVerify({
                         {separator ?? 'Or continue with email'}
                     </span>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }

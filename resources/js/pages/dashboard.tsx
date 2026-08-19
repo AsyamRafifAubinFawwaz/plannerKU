@@ -29,10 +29,10 @@ interface DashboardProps {
     habitProgressPercent: number;
 }
 
-const categoryBadge: Record<string, { bg: string; text: string; label: string }> = {
-    kuliah: { bg: '#1E1A3A', text: '#A89BE8', label: 'kuliah' },
-    harian: { bg: 'transparent', text: '#888888', label: 'harian' }, 
-    penting: { bg: '#FF6B1A1A', text: '#FF6B1A', label: 'penting' },
+const categoryBadge: Record<string, { label: string; className: string }> = {
+    kuliah: { label: 'kuliah', className: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
+    harian: { label: 'harian', className: 'bg-muted text-muted-foreground border-border' },
+    penting: { label: 'penting', className: 'bg-primary/10 text-primary border-primary/20' },
 };
 
 export default function Dashboard({
@@ -65,44 +65,45 @@ export default function Dashboard({
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-                        Ayo mulai, {user.name.split(' ')[0]}! <BsRocketTakeoffFill className="text-[#FF6B1A]" />
+                        Ayo mulai, {user.name.split(' ')[0]}! <BsRocketTakeoffFill className="text-primary" />
                     </h1>
                     <p className="mt-2 text-[15px] font-medium text-muted-foreground">
                         Ini target harianmu. Mari selesaikan!
                     </p>
                 </div>
 
+                {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    <div className="rounded-2xl bg-[#141414] border-2 border-[#2A2A2A] border-b-4 p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
+                    <div className="rounded-2xl bg-card border border-border border-b-4 border-b-border p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">Tugas Aktif</span>
-                            <div className="bg-[#FF6B1A]/10 p-2 rounded-xl text-[#FF6B1A]">
+                            <div className="bg-primary/10 p-2 rounded-xl text-primary">
                                 <FiTarget className="w-5 h-5" />
                             </div>
                         </div>
-                        <div className="text-[40px] font-black text-[#FF6B1A] mt-2 leading-none">{tasksCount}</div>
+                        <div className="text-[40px] font-black text-primary mt-2 leading-none">{tasksCount}</div>
                     </div>
                     
-                    <div className="rounded-2xl bg-[#141414] border-2 border-[#2A2A2A] border-b-4 p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
+                    <div className="rounded-2xl bg-card border border-border border-b-4 border-b-border p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">Streak</span>
                             <div className="bg-orange-500/10 p-2 rounded-xl text-orange-500 animate-pulse">
                                 <FaFire className="w-5 h-5" />
                             </div>
                         </div>
-                        <div className="text-[40px] font-black text-white mt-2 leading-none flex items-baseline gap-1">
+                        <div className="text-[40px] font-black text-foreground mt-2 leading-none flex items-baseline gap-1">
                             {highestStreak} <span className="text-lg font-bold text-muted-foreground lowercase">hari</span>
                         </div>
                     </div>
 
-                    <div className="rounded-2xl bg-[#141414] border-2 border-[#2A2A2A] border-b-4 p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
+                    <div className="rounded-2xl bg-card border border-border border-b-4 border-b-border p-5 flex flex-col justify-between transition-transform hover:-translate-y-1 active:translate-y-0 active:border-b-2">
                         <div className="flex items-center justify-between">
                             <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest">Event</span>
                             <div className="bg-blue-500/10 p-2 rounded-xl text-blue-500">
                                 <FiCalendar className="w-5 h-5" />
                             </div>
                         </div>
-                        <div className="text-[40px] font-black text-white mt-2 leading-none">{eventsCount}</div>
+                        <div className="text-[40px] font-black text-foreground mt-2 leading-none">{eventsCount}</div>
                     </div>
                 </div>
 
@@ -117,7 +118,7 @@ export default function Dashboard({
                         
                         <div className="space-y-3">
                             {tasks.length === 0 ? (
-                                <div className="text-center bg-[#141414] border-2 border-[#2A2A2A] border-b-4 rounded-2xl p-8">
+                                <div className="text-center bg-card border-2 border-border border-b-4 rounded-2xl p-8">
                                     <p className="font-bold text-muted-foreground">Semua misi selesai! 🎉</p>
                                 </div>
                             ) : (
@@ -128,10 +129,10 @@ export default function Dashboard({
                                     return (
                                         <div
                                             key={task.id}
-                                            className={`flex items-center justify-between rounded-2xl bg-[#141414] border-2 px-5 py-4 cursor-pointer transition-all active:translate-y-[2px] active:border-b-2 ${
+                                            className={`flex items-center justify-between rounded-2xl bg-card border-2 px-5 py-4 cursor-pointer transition-all active:translate-y-[2px] active:border-b-2 ${
                                                 task.is_done 
-                                                    ? 'border-[#FF6B1A]/30 border-b-[#FF6B1A]/20 bg-[#FF6B1A]/5 opacity-80' 
-                                                    : 'border-[#2A2A2A] border-b-4 hover:border-[#444]'
+                                                    ? 'border-primary/20 border-b-primary/10 bg-primary/5 opacity-75' 
+                                                    : 'border-border border-b-4 hover:border-primary/30'
                                             }`}
                                             onClick={() => toggleTask(task)}
                                         >
@@ -141,8 +142,8 @@ export default function Dashboard({
                                                     onCheckedChange={() => toggleTask(task)}
                                                     className={`w-6 h-6 rounded-full border-2 transition-colors ${
                                                         task.is_done 
-                                                            ? 'bg-[#FF6B1A] border-[#FF6B1A] text-white data-[state=checked]:bg-[#FF6B1A] data-[state=checked]:border-[#FF6B1A]' 
-                                                            : 'border-muted-foreground/40 hover:border-[#FF6B1A]'
+                                                            ? 'bg-primary border-primary text-white data-[state=checked]:bg-primary data-[state=checked]:border-primary' 
+                                                            : 'border-muted-foreground/40 hover:border-primary'
                                                     }`}
                                                 />
 
@@ -157,17 +158,11 @@ export default function Dashboard({
 
                                             <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                                                 {isDueToday && !task.is_done ? (
-                                                    <span className="rounded-full px-3 py-1 text-[12px] font-bold border-2 border-[#E24B4A]/30 text-[#E24B4A] bg-[#E24B4A]/10">
+                                                    <span className="rounded-full px-3 py-1 text-[12px] font-bold border-2 border-destructive/30 text-destructive bg-destructive/10">
                                                         HARI INI
                                                     </span>
                                                 ) : (
-                                                    <span
-                                                        className="rounded-full px-3 py-1 text-[12px] font-bold"
-                                                        style={{
-                                                            background: badge.bg,
-                                                            color: badge.text,
-                                                        }}
-                                                    >
+                                                    <span className={`rounded-full px-3 py-1 text-[12px] font-bold border-2 ${badge.className}`}>
                                                         {badge.label.toUpperCase()}
                                                     </span>
                                                 )}
@@ -182,21 +177,21 @@ export default function Dashboard({
                     {/* Kebiasaan & Progress */}
                     <div className="space-y-4">
                         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                            <FaTrophy className="text-[#FF6B1A]" /> Pencapaian Habit
+                            <FaTrophy className="text-primary" /> Pencapaian Habit
                         </h2>
 
                         {/* Progress Card Terpadu */}
-                        <div className="bg-[#141414] border-2 border-[#2A2A2A] border-b-4 rounded-3xl p-6">
+                        <div className="bg-card border-2 border-border border-b-4 rounded-3xl p-6">
                             
                             {/* Bar Progress Mingguan */}
                             <div className="mb-8">
                                 <div className="flex items-center justify-between mb-3">
                                     <span className="font-bold text-muted-foreground text-sm uppercase tracking-wider">Progress Mingguan</span>
-                                    <span className="font-black text-[#FF6B1A]">{habitProgressPercent}%</span>
+                                    <span className="font-black text-primary">{habitProgressPercent}%</span>
                                 </div>
-                                <div className="h-5 w-full bg-[#2A2A2A] rounded-full overflow-hidden p-1">
+                                <div className="h-5 w-full bg-muted rounded-full overflow-hidden p-1">
                                     <div 
-                                        className="h-full bg-[#FF6B1A] rounded-full transition-all duration-1000 relative"
+                                        className="h-full bg-primary rounded-full transition-all duration-1000 relative"
                                         style={{ width: `${habitProgressPercent}%` }}
                                     >
                                         {/* Glossy highlight line */}
@@ -217,16 +212,16 @@ export default function Dashboard({
                                                 {habit.name}
                                             </span>
                                             
-                                            <div className="flex justify-between items-center bg-[#1A1A1A] p-2 rounded-xl">
+                                            <div className="flex justify-between items-center bg-muted p-2 rounded-xl">
                                                 {last7Days.map((date) => {
                                                     const isDone = habit.logs.some(log => log.logged_date.split('T')[0] === date);
                                                     return (
                                                         <div
                                                             key={date}
-                                                            className={`h-4 w-4 rounded-full border-2 ${
+                                                            className={`h-4 w-4 rounded-full border-2 transition-colors ${
                                                                 isDone 
-                                                                    ? 'bg-[#FF6B1A] border-[#FF6B1A]' 
-                                                                    : 'bg-[#2A2A2A] border-[#2A2A2A]'
+                                                                    ? 'bg-primary border-primary' 
+                                                                    : 'bg-background border-border'
                                                             }`}
                                                         />
                                                     );
